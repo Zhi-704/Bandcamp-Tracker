@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS subscriber;
 CREATE TABLE subscriber (
     subscriber_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(60) NOT NULL
 );
 
 CREATE TABLE artist (
@@ -31,7 +31,7 @@ CREATE TABLE album (
 
 CREATE TABLE track (
     track_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    title VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
     album_id INT NOT NULL,
     artist_id INT NOT NULL,
     FOREIGN KEY (artist_id) REFERENCES artist(artist_id)  

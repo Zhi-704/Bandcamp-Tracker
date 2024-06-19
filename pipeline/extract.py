@@ -1,5 +1,7 @@
 '''File used for extracting information from bandcamp's website and API'''
 
+import json
+import csv
 import logging
 import requests as req
 from bs4 import BeautifulSoup
@@ -15,8 +17,6 @@ if track with associated album, give album url, album tags, track tags
 '''
 
 BANDCAMP_SALES_URL = "https://bandcamp.com/api/salesfeed/1/get_initial"
-TEMPLATE_ALBUM_URL = "https://tokenrecords.bandcamp.com/album/"
-TEMPLATE_TRACK_URL = "https://tokenrecords.bandcamp.com/track/"
 MAX_TIMEOUT_SECONDS = 10
 
 
@@ -34,14 +34,15 @@ def get_data_from_url(site_url: str = BANDCAMP_SALES_URL, max_timeout: int = MAX
                 response.status_code}")
 
     except req.exceptions.RequestException as e:
-        logging.error(f"A request error has occurred: {e}")
+        logging.error("A request error has occurred: %s", e)
     except TimeoutError as e:
-        logging.error(f"A timeout error has occurred: {e}")
+        logging.error("A timeout error has occurred: %s", e)
 
 
 def extract_list_of_items(event_list: list[dict]) -> list[dict]:
     '''Extract all items from event list, where each element is an item'''
     item_list = []
+    counter = 0
     for event in event_list:
         if event['event_type'] != 'sale':
             continue
@@ -52,6 +53,8 @@ def extract_list_of_items(event_list: list[dict]) -> list[dict]:
             if not (item["item_type"] == "a" or item["item_type"] == "t"):
                 continue
             item_list.append(extract_and_scrape_item(item))
+            print("Scraped: ", counter)
+            counter += 1
 
     return item_list
 
@@ -60,19 +63,61 @@ def extract_and_scrape_item(purchase_dict: dict) -> dict:
     '''Scrape and extract information for an item, giving
     more complete information for the item'''
     if purchase_dict["item_type"] == "t":
-        track_url = "https:" + purchase_dict["url"]
-        purchase_dict["track_tags"] = scrape_tags(track_url)
+        purchase_dict["track_tags"] = scrape_tags(
+            insert_protocol_url(purchase_dict["url"]))
     if purchase_dict["item_type"] == "a":
-        album_url = TEMPLATE_ALBUM_URL + \
-            get_item_type_and_title(purchase_dict["url"])
+        purchase_dict["album_tags"] = scrape_tags(
+            insert_protocol_url(purchase_dict["url"]))
+    if purchase_dict["item_type"] == "t" and purchase_dict["album_title"] != None:
+        stem_url = get_stem_url(insert_protocol_url(purchase_dict["url"]))
+        album_url = scrape_album_url(insert_protocol_url(purchase_dict["url"]))
+
+        if stem_url != None and album_url != None:
+            purchase_dict["album_url"] = stem_url+album_url
+            purchase_dict["album_tags"] = scrape_tags(stem_url+album_url)
 
     return purchase_dict
 
 
-def get_item_type_and_title(url_string: str) -> str:
-    '''Grab the track and album'''
-    parts = url_string.split("/")[-2:]
+def save_to_json(list_to_be_written: list) -> None:
+    '''Saves list of dictionary to json'''
+    with open('sanity_check.json', 'w', encoding='utf-8') as file:
+        json.dump(list_to_be_written, file, indent=4)
+
+    logging.info("List of dictionaries has been saved to sanity_check.json")
+
+
+def insert_protocol_url(url_string: str) -> str:
+    '''Checks if protocol is inside url string, if not adds it'''
+    if "https://" in url_string or "http://" in url_string:
+        return url_string
+    return "https:" + url_string
+
+
+def get_stem_url(url_string: str) -> str:
+    '''Grab the stem of a url'''
+    parts = url_string.split("/")[:-2]
     return "/".join(parts)
+
+
+def scrape_album_url(webpage_url: str) -> str:
+    '''Scrapes album url of a specified webpage url'''
+    try:
+        response = req.get(webpage_url, timeout=MAX_TIMEOUT_SECONDS)
+    except req.exceptions.RequestException as e:
+        logging.error("A request error has occurred scraping album: %s", e)
+        return
+    except TimeoutError as e:
+        logging.error("A timeout error has occurred scraping album: %s", e)
+        return
+
+    soup = BeautifulSoup(response.text, features="html.parser")
+    link = soup.find("a", id="buyAlbumLink")
+
+    if link:
+        href = link.get("href")
+        if href:
+            return href
 
 
 def scrape_tags(webpage_url: str) -> list:
@@ -80,21 +125,21 @@ def scrape_tags(webpage_url: str) -> list:
     try:
         response = req.get(webpage_url, timeout=MAX_TIMEOUT_SECONDS)
     except req.exceptions.RequestException as e:
-        logging.error(f"A request error has occurred: {e}")
+        logging.error("A request error has occurred scraping tags: %s", e)
         return
     except TimeoutError as e:
-        logging.error(f"A timeout error has occurred: {e}")
+        logging.error("A timeout error has occurred scraping tags: %s", e)
         return
 
     tag_list = []
 
     soup = BeautifulSoup(response.text, features="html.parser")
-    stuff = soup.find_all("a", class_="tag")
+    tags = soup.find_all("a", class_="tag")
 
-    for tag in stuff:
+    for tag in tags:
         tag_list.append(tag.text)
 
-    return tag_list
+    return tag_list if len(tag_list) > 0 else None
 
 
 if __name__ == "__main__":
@@ -108,7 +153,4 @@ if __name__ == "__main__":
     data = get_data_from_url()
     if data != None:
         list_of_items = extract_list_of_items(data['feed_data']['events'])
-        print(list_of_items[2])
-
-    # print(scrape_tags("https://olson.bandcamp.com/track/cerulean"))
-    print(get_item_type_and_title("https://olson.bandcamp.com/track/cerulean"))
+        save_to_json(list_of_items)

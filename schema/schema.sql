@@ -1,10 +1,12 @@
-DROP TABLE IF EXISTS purchase;
-DROP TABLE IF EXISTS item_genre_assignment;
-DROP TABLE IF EXISTS genre;
-DROP TABLE IF EXISTS item;
-DROP TABLE IF EXISTS artist;
-DROP TABLE IF EXISTS format;
+DROP TABLE IF EXISTS track_tag_assignment;
+DROP TABLE IF EXISTS album_tag_assignment;
+DROP TABLE IF EXISTS tag;
+DROP TABLE IF EXISTS track_purchase;
+DROP TABLE IF EXISTS album_purchase;
 DROP TABLE IF EXISTS country;
+DROP TABLE IF EXISTS track;
+DROP TABLE IF EXISTS album;
+DROP TABLE IF EXISTS artist;
 DROP TABLE IF EXISTS subscriber;
 
 
@@ -14,54 +16,69 @@ CREATE TABLE subscriber (
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE country (
-    country_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(60) UNIQUE NOT NULL
-);
-
-CREATE TABLE format (
-    format_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(20) UNIQUE NOT NULL
-);
-
 CREATE TABLE artist (
     artist_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(255) NOT NULL,
     url VARCHAR(255) UNIQUE NOT NULL
 );
 
-CREATE TABLE item (
-    item_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    track_title VARCHAR(255) NOT NULL,
-    album_title VARCHAR(255) NOT NULL, 
-    format_id INT NOT NULL,
+CREATE TABLE album (
+    album_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(255) NOT NULL,
     artist_id INT NOT NULL,
-    item_url VARCHAR(255) NOT NULL,
-    art_url VARCHAR(255) NOT NULL,
-    FOREIGN KEY (format_id) REFERENCES format(format_id),
-    FOREIGN KEY (artist_id) REFERENCES artist(artist_id),
-    CHECK (track_title IS NOT NULL OR album_title IS NOT NULL)
+    FOREIGN KEY (artist_id) REFERENCES artist(artist_id)
 );
 
-CREATE TABLE genre (
-    genre_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+CREATE TABLE track (
+    track_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(255) NOT NULL,
+    album_id INT NOT NULL,
+    artist_id INT NOT NULL,
+    FOREIGN KEY (artist_id) REFERENCES artist(artist_id)  
+);
+
+CREATE TABLE country (
+    country_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(60) UNIQUE NOT NULL
+);
+
+CREATE TABLE album_purchase (
+    album_purchase_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    album_id INT NOT NULL,
+    timestamp TIMESTAMP(0) NOT NULL,
+    amount_usd DECIMAL(6,2) NOT NULL,
+    country_id SMALLINT NOT NULL,
+    FOREIGN KEY (album_id) REFERENCES album(album_id),
+    FOREIGN KEY (country_id) REFERENCES country(country_id)
+);
+
+CREATE TABLE track_purchase (
+    track_purchase_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    track_id INT NOT NULL,
+    timestamp TIMESTAMP(0) NOT NULL,
+    amount_usd DECIMAL(6,2) NOT NULL,
+    country_id SMALLINT NOT NULL,
+    FOREIGN KEY (track_id) REFERENCES track(track_id),
+    FOREIGN KEY (country_id) REFERENCES country(country_id)
+);
+
+CREATE TABLE tag (
+    tag_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(20) UNIQUE NOT NULL
 );
 
-CREATE TABLE item_genre_assignment (
-    assignment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    item_id INT NOT NULL,
-    genre_id SMALLINT NOT NULL,
-    FOREIGN KEY (item_id) REFERENCES item(item_id),
-    FOREIGN KEY (genre_id) REFERENCES genre(genre_id)
+CREATE TABLE album_tag_assignment (
+    album_genre_assignment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    tag_id SMALLINT NOT NULL,
+    album_id INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES tag(tag_id),
+    FOREIGN KEY (album_id) REFERENCES album(album_id)
 );
 
-CREATE TABLE purchase (
-    purchase_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    timestamp TIMESTAMP(0) NOT NULL,
-    country_id SMALLINT NOT NULL,
-    amount_usd decimal(8,2) NOT NULL,
-    item_id INT NOT NULL,
-    FOREIGN KEY (country_id) REFERENCES country(country_id),
-    FOREIGN KEY (item_id) REFERENCES item(item_id)
+CREATE TABLE track_tag_assignment (
+    track_tag_assignment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    tag_id SMALLINT NOT NULL,
+    track_id INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES tag(tag_id),
+    FOREIGN KEY (track_id) REFERENCES track(track_id)
 );

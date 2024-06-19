@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS subscriber;
 CREATE TABLE subscriber (
     subscriber_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255) UNIQUE NOT NULL
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE country (
@@ -26,7 +26,7 @@ CREATE TABLE format (
 
 CREATE TABLE artist (
     artist_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
     url VARCHAR(255) UNIQUE NOT NULL
 );
 
@@ -39,7 +39,8 @@ CREATE TABLE item (
     item_url VARCHAR(255) NOT NULL,
     art_url VARCHAR(255) NOT NULL,
     FOREIGN KEY (format_id) REFERENCES format(format_id),
-    FOREIGN KEY (artist_id) REFERENCES artist(artist_id)
+    FOREIGN KEY (artist_id) REFERENCES artist(artist_id),
+    CHECK (track_title IS NOT NULL OR album_title IS NOT NULL)
 );
 
 CREATE TABLE genre (

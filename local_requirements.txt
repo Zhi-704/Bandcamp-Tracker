@@ -7,5 +7,7 @@ pylint
 python-dotenv
 pytest-cov
 requests
-
-
+streamlit
+pandas
+psycopg
+altair

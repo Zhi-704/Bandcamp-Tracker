@@ -51,7 +51,7 @@ def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
 def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N most sold albums in the database."""
 
-    print("Collating most popular albums.")
+    print("Collating most popular albums...")
 
     query = """
         SELECT AB.title, AT.name, COUNT(*) AS copies_sold
@@ -77,7 +77,7 @@ def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
 def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N artists with the most sales in the database."""
 
-    print("Collating most popular artists.")
+    print("Collating most popular artists...")
 
     query = """
         SELECT A.name, COUNT(AP.album_purchase_id)+COUNT(TP.track_purchase_id) AS total_sales

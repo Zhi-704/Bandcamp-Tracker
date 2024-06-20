@@ -1,4 +1,4 @@
-"""Charts used in dashboard."""
+"""Functions for generating Altair chart visualisation used in dashboard."""
 
 import altair as alt
 import streamlit as st

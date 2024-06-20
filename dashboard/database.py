@@ -106,7 +106,7 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
 def get_sales_by_tag(_conn: Connection) -> pd.DataFrame:
     """Returns a count of sales by genre/tag."""
 
-    print("Counting sales by tag.")
+    print("Counting sales by tag...")
 
     query = """
         SELECT TG.name AS tag, COUNT(*) AS sales

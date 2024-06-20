@@ -103,8 +103,8 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_by_tag(_conn: Connection) -> pd.DataFrame:
-    """Returns a count of sales by genre/tag."""
+def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
+    """Returns the top n genre/tag by sales."""
 
     print("Counting sales by tag...")
 
@@ -124,6 +124,8 @@ def get_sales_by_tag(_conn: Connection) -> pd.DataFrame:
         LEFT JOIN track_purchase AS TP
         USING(track_id)
         GROUP BY tag
+        ORDER BY sales
+        LIMIT %s
         ;
         """
 

@@ -5,3 +5,4 @@ pandas
 altair
 boto3
 psycopg[binary]
+plotly

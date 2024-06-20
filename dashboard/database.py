@@ -154,3 +154,28 @@ def get_all_tags(_conn: Connection) -> list:
         cur.execute(query)
         data = cur.fetchall()
     return sorted([d["name"] for d in data])
+
+
+def get_sales_by_country(_conn: Connection, n: int = 5):
+    """Returns the top n countries by sales."""
+
+    print("Counting sales by country...")
+
+    query = """
+        SELECT C.name, COUNT(album_purchase_id)+COUNT(track_purchase_id) AS total_sales
+        FROM country AS C
+        JOIN album_purchase AS AP
+        USING(country_id)
+        JOIN track_purchase AS TP
+        ON TP.country_id = C.country_id
+        GROUP BY C.name
+        ORDER BY total_sales DESC
+        LIMIT %s
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (n, ))
+        data = cur.fetchall()
+
+    return data

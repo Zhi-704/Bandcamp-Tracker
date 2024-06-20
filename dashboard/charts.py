@@ -3,6 +3,7 @@
 import altair as alt
 import streamlit as st
 from pandas import DataFrame
+import plotly.express as px
 
 
 @st.cache_data
@@ -44,3 +45,16 @@ def get_artist_stacked_chart(artists: DataFrame) -> alt.Chart:
         x=alt.X("name", title="Artist"),
         y=alt.Y("total_sales:Q", title="Sales")
     )
+
+
+def create_choropleth_map(locations):
+    fig_map = px.choropleth(locations,
+                            locations="name",
+                            locationmode="country names",
+                            color="total_sales",
+                            hover_name="name",
+                            hover_data="total_sales",
+                            color_continuous_scale="Blues",
+                            title="Sales",
+                            labels={"total_sales": "Total sales", "name": "Country"})
+    return fig_map

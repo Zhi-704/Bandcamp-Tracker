@@ -1,7 +1,24 @@
 """Script for transforming the data extracted from the api and web-scraping."""
 
 from datetime import datetime, timezone
+import logging
 from extract import insert_protocol_url, get_stem_url, get_sales_data
+
+KEYS_TO_REMOVE = [
+    "slug_type",
+    "track_album_slug_text",
+    "currency",
+    "amount_paid",
+    "item_price",
+    "art_id",
+    "releases",
+    "package_image_id",
+    "amount_paid_fmt",
+    "art_url",
+    "amount_over_fmt",
+    "item_slug",
+    "country_code",
+]
 
 
 def convert_unix_to_datetime(unix_timestamp: float) -> str:
@@ -36,29 +53,15 @@ def clean_data(sales_data: dict) -> dict:
     if not isinstance(sales_data, dict):
         raise TypeError("Input data must be a dictionary.")
 
-    keys_to_remove = [
-        "slug_type",
-        "track_album_slug_text",
-        "currency",
-        "amount_paid",
-        "item_price",
-        "art_id",
-        "releases",
-        "package_image_id",
-        "amount_paid_fmt",
-        "art_url",
-        "amount_over_fmt",
-        "item_slug",
-        "country_code",
-    ]
-
     return {
-        key: value for key, value in sales_data.items() if key not in keys_to_remove
+        key: value for key, value in sales_data.items() if key not in KEYS_TO_REMOVE
     }
 
 
 def transform_sales_data(sales_data: list[dict]) -> list[dict]:
     """Cleans and formats the sales data, returning it as a list of dictionaries."""
+
+    logging.info("Transforming sales data...")
 
     cleaned_sales = []
 
@@ -70,12 +73,12 @@ def transform_sales_data(sales_data: list[dict]) -> list[dict]:
 
         cleaned_sales.append(clean_data(item))
 
+    logging.info("Transform complete!")
+
     return cleaned_sales
 
 
 if __name__ == "__main__":
 
     list_of_items = get_sales_data()
-    print(list_of_items[0])
     cleaned_data = transform_sales_data(list_of_items)
-    print(cleaned_data[0])

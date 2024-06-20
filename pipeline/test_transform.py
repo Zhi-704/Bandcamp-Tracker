@@ -4,47 +4,44 @@ from transform import convert_unix_to_datetime, clean_data, transform_sales_data
 import pytest
 
 
-def test_convert_unix_to_datetime_valid():
-    """Tests that a valid Unix timestamp is converted to a string.."""
+@pytest.mark.parametrize(
+    "unix_float, expected_output",
+    [
+        (1718801551.04217, "2024-06-19 12:52:31"),
+        (1718715151.04217, "2024-06-18 12:52:31"),
+        (1718628751.04217, "2024-06-17 12:52:31"),
+        (1718542351.04217, "2024-06-16 12:52:31"),
+        (1718455951.04217, "2024-06-15 12:52:31"),
+    ],
+)
+def test_convert_unix_to_datetime_valid(unix_float, expected_output):
+    """Tests that a valid Unix timestamp is converted to a string."""
+    assert convert_unix_to_datetime(unix_float) == expected_output
 
-    unix_timestamp = 1718801551.04217
 
-    assert convert_unix_to_datetime(unix_timestamp) == "2024-06-19 12:52:31"
-
-
-def test_convert_unix_to_datetime_invalid_type():
-    """Tests that a TypeError is raised if a float is not passed in."""
-
-    unix_timestamp = "171880151.04217"
-
-    with pytest.raises(TypeError) as exc_info:
+@pytest.mark.parametrize(
+    "unix_timestamp, expected_exception, expected_message",
+    [
+        (
+            "171880151.04217",
+            TypeError,
+            "Expected a float for unix_timestamp, but got <class 'str'>",
+        ),
+        (-1718801551.04217, ValueError, "Unix timestamp cannot be negative."),
+        (
+            9918801551.04217,
+            ValueError,
+            "The provided Unix timestamp corresponds to a future date or time: ",
+        ),
+    ],
+)
+def test_convert_unix_to_datetime_exceptions(
+    unix_timestamp, expected_exception, expected_message
+):
+    """Tests that the appropriate exceptions are raised for invalid inputs."""
+    with pytest.raises(expected_exception) as exc_info:
         convert_unix_to_datetime(unix_timestamp)
-        assert (
-            str(exc_info.value)
-            == "Expected a float for unix_timestamp, but got <class 'str'>"
-        )
-
-
-def test_convert_unix_to_datetime_invalid_unix():
-    """Tests that a ValueError is raised when a invalid Unix is passed in."""
-
-    unix_timestamp = -1718801551.04217
-
-    with pytest.raises(ValueError) as exc_info:
-        convert_unix_to_datetime(unix_timestamp)
-    assert str(exc_info.value) == "Unix timestamp cannot be negative."
-
-
-def test_convert_unix_to_datetime_invalid_datetime():
-    """Tests that a ValueError is raised if an 'impossible' unix is passed in."""
-
-    unix_timestamp = 9918801551.04217
-
-    with pytest.raises(ValueError) as exc_info:
-        convert_unix_to_datetime(unix_timestamp)
-    assert str(exc_info.value).startswith(
-        "The provided Unix timestamp corresponds to a future date or time: "
-    )
+    assert str(exc_info.value).startswith(expected_message)
 
 
 def test_clean_data_valid():

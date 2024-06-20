@@ -24,7 +24,7 @@ def get_connection() -> Connection:
 def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N most sold tracks in the database."""
 
-    print("Collating most popular tracks.")
+    print("Collating most popular tracks...")
 
     query = """
         SELECT T.title, A.name, COUNT(*) AS copies_sold

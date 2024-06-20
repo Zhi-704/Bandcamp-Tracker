@@ -1,7 +1,7 @@
+altair
+boto3
+pandas
+psycopg[binary]
 pylint
 python-dotenv
 streamlit
-pandas
-altair
-boto3
-psycopg[binary]

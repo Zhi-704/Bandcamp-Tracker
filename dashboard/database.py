@@ -109,7 +109,7 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Counting sales by tag...")
 
     query = """
-        SELECT TG.name AS tag, COUNT(*) AS sales
+        SELECT TG.name AS tag, COUNT(*) AS total_sales
         FROM tag AS TG
         LEFT JOIN album_tag_assignment AS ATG
         USING(tag_id)

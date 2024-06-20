@@ -11,21 +11,20 @@ import pandas as pd
 @st.cache_resource
 def get_connection() -> Connection:
     """gets a connection"""
-    connection = connect(
+    return connect(
         port=ENV["DB_PORT"],
         dbname=ENV["DB_NAME"],
         host=ENV["DB_ENDPOINT"],
         user=ENV["DB_USER"],
         password=ENV["DB_PASSWORD"]
     )
-    return connection
 
 
 @st.cache_data(ttl="1hr")
 def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N most sold tracks in the database."""
 
-    print("Collating most popular tracks.")
+    print("Collating most popular tracks...")
 
     query = """
         SELECT T.title, A.name, COUNT(*) AS copies_sold

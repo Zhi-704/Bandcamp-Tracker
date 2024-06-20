@@ -6,3 +6,5 @@ pylint
 python-dotenv
 pytest-cov
 logging
+aiohttp
+asyncio

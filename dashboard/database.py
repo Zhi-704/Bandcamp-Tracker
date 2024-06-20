@@ -3,6 +3,7 @@
 from os import environ as ENV
 
 from psycopg import connect, Connection
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 import streamlit as st
 import pandas as pd
@@ -16,7 +17,8 @@ def get_connection() -> Connection:
         dbname=ENV["DB_NAME"],
         host=ENV["DB_ENDPOINT"],
         user=ENV["DB_USER"],
-        password=ENV["DB_PASSWORD"]
+        password=ENV["DB_PASSWORD"],
+        row_factory=dict_row
     )
 
 
@@ -124,13 +126,13 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
         LEFT JOIN track_purchase AS TP
         USING(track_id)
         GROUP BY tag
-        ORDER BY sales
+        ORDER BY total_sales DESC
         LIMIT %s
         ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query)
+        cur.execute(query, (n, ))
         data = cur.fetchall()
 
     return pd.DataFrame(data)

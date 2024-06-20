@@ -17,19 +17,30 @@ def get_most_copies_sold_chart(data: DataFrame) -> alt.Chart:
 
 
 @st.cache_data
-def get_most_popular_chart(data: DataFrame) -> alt.Chart:
-    """Returns a bar chart of popular artists/tags and their sales."""
+def get_most_popular_artists_chart(artists: DataFrame) -> alt.Chart:
+    """Returns a bar chart of popular artists and their sales."""
 
-    return alt.Chart(data).mark_bar().encode(
-        x=alt.X("name", title="Artist"),
-        y=alt.Y("total_sales:N", title="Sales")
+    return alt.Chart(artists).mark_bar().encode(
+        x=alt.X("name", title="Artists"),
+        y=alt.Y("total_sales:Q", title="Sales")
     )
 
 
+@st.cache_data
+def get_most_popular_tags_chart(tags: DataFrame) -> alt.Chart:
+    """Returns a bar chart of popular tags and their sales."""
+
+    return alt.Chart(tags).mark_bar().encode(
+        x=alt.X("tag", title="Tags"),
+        y=alt.Y("total_sales:Q", title="Sales")
+    )
+
+
+@st.cache_data
 def get_artist_stacked_chart(artists: DataFrame) -> alt.Chart:
     """Returns a bar chart showing split of albums vs. track sales for top artists"""
 
     return alt.Chart(artists).mark_bar().encode(
         x=alt.X("name", title="Artist"),
-        y=alt.Y("total_sales:N", title="Sales")
+        y=alt.Y("total_sales:Q", title="Sales")
     )

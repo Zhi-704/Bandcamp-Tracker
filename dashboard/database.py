@@ -113,18 +113,18 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
     query = """
         SELECT TG.name AS tag, COUNT(*) AS total_sales
         FROM tag AS TG
-        LEFT JOIN album_tag_assignment AS ATG
-        USING(tag_id)
-        LEFT JOIN track_tag_assignment AS TGA
-        USING(tag_id)
-        LEFT JOIN album AS A
+        JOIN album_tag_assignment AS ATG
+        ON ATG.tag_id =TG.tag_id
+        JOIN track_tag_assignment AS TGA
+        ON TGA.tag_id = TG.tag_id
+        JOIN album AS A
         USING(album_id)
-        LEFT JOIN track AS T
+        JOIN track AS T
         USING(track_id)
-        LEFT JOIN album_purchase AS AP
-        USING(album_id)
-        LEFT JOIN track_purchase AS TP
-        USING(track_id)
+        JOIN album_purchase AS AP
+        ON AP.album_id = A.album_id
+        JOIN track_purchase AS TP
+        ON TP.track_id = T.track_id
         GROUP BY tag
         ORDER BY total_sales DESC
         LIMIT %s
@@ -153,5 +153,4 @@ def get_all_tags(_conn: Connection) -> list:
     with _conn.cursor() as cur:
         cur.execute(query)
         data = cur.fetchall()
-        print(type(data))
     return sorted([d["name"] for d in data])

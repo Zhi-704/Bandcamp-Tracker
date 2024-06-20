@@ -23,3 +23,13 @@ def get_popular_artists_chart(artists: DataFrame) -> alt.Chart:
         x=alt.X("name"),
         y=alt.Y("total_sales:N")
     )
+
+
+@st.cache_data(ttl="1hr")
+def top_tags_chart(tags: DataFrame) -> alt.Chart:
+    """Returns a bar chart of popular tags and their sales."""
+
+    return alt.Chart(tags).mark_bar().encode(
+        x=alt.X("name"),
+        y=alt.Y("sales:N")
+    )

@@ -22,6 +22,7 @@ def get_connection() -> Connection:
     return connection
 
 
+@st.cache_resource(ttl="1hr")
 def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N most sold tracks in the database."""
 
@@ -47,6 +48,7 @@ def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+@st.cache_resource(ttl="1hr")
 def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N most sold albums in the database."""
 
@@ -72,6 +74,7 @@ def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+@st.cache_resource(ttl="1hr")
 def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the N artists with the most sales in the database."""
 
@@ -101,6 +104,7 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+@st.cache_resource(ttl="1hr")
 def get_sales_by_tag(_conn: Connection) -> pd.DataFrame:
     """Returns a count of sales by genre/tag."""
 

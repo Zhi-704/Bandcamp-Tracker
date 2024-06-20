@@ -81,7 +81,7 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular artists...")
 
     query = """
-        SELECT A.name, COUNT(AP.album_purchase_id)+COUNT(TP.track_purchase_id) AS total_sales
+        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales, COUNT(AP.album_purchase_id) + COUNT(TP.track_purchase_id) AS total_sales
         FROM artist as A
         JOIN album AS AB
         USING(artist_id)

@@ -10,8 +10,9 @@ def get_most_copies_sold_chart(data: DataFrame) -> alt.Chart:
     """Returns a bar chart of most copies sold when passed tracks/albums data."""
 
     return alt.Chart(data).mark_bar().encode(
-        x=alt.X("title"),
-        y=alt.Y("copies_sold:N")
+        x=alt.X("title", title="Title"),
+        y=alt.Y("copies_sold:N", title="Copies sold"),
+        color=alt.Color("name", title="Artist")
     )
 
 
@@ -20,6 +21,15 @@ def get_most_popular_chart(data: DataFrame) -> alt.Chart:
     """Returns a bar chart of popular artists/tags and their sales."""
 
     return alt.Chart(data).mark_bar().encode(
-        x=alt.X("name"),
-        y=alt.Y("total_sales:N")
+        x=alt.X("name", title="Artist"),
+        y=alt.Y("total_sales:N", title="Sales")
+    )
+
+
+def get_artist_stacked_chart(artists: DataFrame) -> alt.Chart:
+    """Returns a bar chart showing split of albums vs. track sales for top artists"""
+
+    return alt.Chart(artists).mark_bar().encode(
+        x=alt.X("name", title="Artist"),
+        y=alt.Y("total_sales:N", title="Sales")
     )

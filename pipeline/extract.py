@@ -7,8 +7,8 @@ import logging
 from time import sleep
 
 import aiohttp
-import requests as req
 from bs4 import BeautifulSoup
+import requests as req
 
 
 BANDCAMP_SALES_URL = "https://bandcamp.com/api/salesfeed/1/get_initial"

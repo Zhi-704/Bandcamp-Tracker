@@ -6,7 +6,7 @@ from database import get_all_tags, get_connection
 
 if __name__ == "__main__":
 
-    st.page_link("./main.py", label="Home")
+    st.page_link("./Home.py", label="Home")
 
     email = ""
     age = ""

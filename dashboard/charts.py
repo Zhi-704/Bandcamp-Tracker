@@ -47,6 +47,7 @@ def get_artist_stacked_chart(artists: DataFrame) -> alt.Chart:
     )
 
 
+@st.cache_data
 def create_choropleth_map(locations):
     fig_map = px.choropleth(locations,
                             locations="name",

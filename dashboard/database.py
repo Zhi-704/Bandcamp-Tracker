@@ -179,3 +179,21 @@ def get_sales_by_country(_conn: Connection, n: int = 5):
         data = cur.fetchall()
 
     return data
+
+
+def get_all_album_sales(_conn: Connection):
+    """Returns all album info."""
+
+    print("Counting album sales...")
+
+    query = """
+        SELECT *
+        FROM album_purchase AS AP
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (n, ))
+        data = cur.fetchall()
+
+    return data

@@ -135,5 +135,3 @@ def get_sales_by_tag(_conn: Connection) -> pd.DataFrame:
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
-    tracks = get_popular_artists(conn)
-    print(tracks)

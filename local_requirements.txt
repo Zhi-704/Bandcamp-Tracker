@@ -1,9 +1,11 @@
-requests
+aiohttp
+asyncio
 bs4
+logging
 pytest
 pylint
 python-dotenv
 pytest-cov
-logging
-aiohttp
-asyncio
+requests
+
+

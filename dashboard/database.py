@@ -3,7 +3,6 @@
 from os import environ as ENV
 
 from psycopg import connect, Connection
-from psycopg.rows import dict_row
 from dotenv import load_dotenv
 import streamlit as st
 import pandas as pd

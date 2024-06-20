@@ -18,7 +18,6 @@ if __name__ == "__main__":
     albums = get_popular_albums(conn)
     artists = get_popular_artists(conn)
     # tags = get_sales_by_tag(conn)
-    conn.close()
     tracks
     st.altair_chart(get_most_copies_sold_chart(
         tracks), use_container_width=True)

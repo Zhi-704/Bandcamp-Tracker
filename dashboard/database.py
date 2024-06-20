@@ -136,3 +136,22 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
         data = cur.fetchall()
 
     return pd.DataFrame(data)
+
+
+@st.cache_data(ttl="1hr")
+def get_all_tags(_conn: Connection) -> list:
+    """Returns all tags."""
+
+    print("Collecting tags...")
+
+    query = """
+        SELECT name
+        FROM tag
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
+        print(type(data))
+    return sorted([d["name"] for d in data])

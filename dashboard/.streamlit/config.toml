@@ -4,8 +4,7 @@ gatherUsageStats = false
 [theme]
 base = "light"
 primaryColor = "#3c9aaa"
-secondaryBackgroundColor= "#3c9aaa"
-
+textColor="#3c9aaa"
 [client]
 showSidebarNavigation = true
 

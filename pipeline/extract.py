@@ -1,9 +1,11 @@
 '''File used for extracting information from bandcamp's website and API'''
 
-from time import sleep
+
+import asyncio
 import json
 import logging
-import asyncio
+from time import sleep
+
 import aiohttp
 import requests as req
 from bs4 import BeautifulSoup
@@ -15,7 +17,7 @@ MAX_TIMEOUT_SECONDS = 20
 
 def get_sale_data_from_api(site_url: str = BANDCAMP_SALES_URL,
                            max_timeout: int = MAX_TIMEOUT_SECONDS) -> dict:
-    '''Get content from the specified api endpoint'''
+    '''Get content from the specified api endpoint. Sleep was included to avoid a 429 error'''
     sleep(10)
     try:
         response = req.get(site_url, timeout=max_timeout)
@@ -34,10 +36,10 @@ def get_sale_data_from_api(site_url: str = BANDCAMP_SALES_URL,
     return None
 
 
-def save_to_json(list_to_be_written: list, filename: str) -> None:
+def save_to_json(sales_data: list, filename: str) -> None:
     '''Saves list of dictionary to json'''
     with open(filename, 'w', encoding='utf-8') as file:
-        json.dump(list_to_be_written, file, indent=4)
+        json.dump(sales_data, file, indent=4)
 
     logging.info("List of dictionaries has been saved to %s", filename)
 
@@ -106,7 +108,7 @@ async def extract_and_scrape_item(session: aiohttp.ClientSession,
     return purchase_dict
 
 
-async def fetch(session: aiohttp.ClientSession, specified_url: str, timeout: int):
+async def fetch_webpage(session: aiohttp.ClientSession, specified_url: str, timeout: int):
     '''Get text/html content from a specified url'''
     try:
         async with session.get(specified_url, timeout=timeout) as response:
@@ -125,7 +127,7 @@ async def fetch(session: aiohttp.ClientSession, specified_url: str, timeout: int
 
 async def scrape_album_url(session: aiohttp.ClientSession, webpage_url: str, timeout: int) -> str:
     '''Scrapes album url of a specified webpage url'''
-    html = await fetch(session, webpage_url, timeout)
+    html = await fetch_webpage(session, webpage_url, timeout)
 
     if html is None:
         return None
@@ -143,7 +145,7 @@ async def scrape_album_url(session: aiohttp.ClientSession, webpage_url: str, tim
 
 async def scrape_tags(session: aiohttp.ClientSession, webpage_url: str, timeout: int) -> list:
     '''Scrapes tags of a specified webpage url'''
-    html = await fetch(session, webpage_url, timeout)
+    html = await fetch_webpage(session, webpage_url, timeout)
     if html is None:
         return None
 

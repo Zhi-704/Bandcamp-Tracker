@@ -5,7 +5,7 @@ import streamlit as st
 from pandas import DataFrame
 
 
-@st.cache_data(ttl="1hr")
+@st.cache_data
 def get_most_copies_sold_chart(data: DataFrame) -> alt.Chart:
     """Returns a bar chart of most copies sold when passed tracks/albums data."""
 
@@ -15,7 +15,7 @@ def get_most_copies_sold_chart(data: DataFrame) -> alt.Chart:
     )
 
 
-@st.cache_data(ttl="1hr")
+@st.cache_data
 def get_popular_artists_chart(artists: DataFrame) -> alt.Chart:
     """Returns a bar chart of popular artists and their sales."""
 
@@ -25,7 +25,7 @@ def get_popular_artists_chart(artists: DataFrame) -> alt.Chart:
     )
 
 
-@st.cache_data(ttl="1hr")
+@st.cache_data
 def top_tags_chart(tags: DataFrame) -> alt.Chart:
     """Returns a bar chart of popular tags and their sales."""
 

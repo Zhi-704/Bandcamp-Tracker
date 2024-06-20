@@ -1,0 +1,13 @@
+aiohttp
+asyncio
+bs4
+logging
+pytest
+pylint
+python-dotenv
+pytest-cov
+requests
+streamlit
+pandas
+psycopg
+altair

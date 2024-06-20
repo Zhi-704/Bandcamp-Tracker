@@ -1,0 +1,9 @@
+requests
+bs4
+pytest
+pylint
+python-dotenv
+pytest-cov
+logging
+aiohttp
+asyncio

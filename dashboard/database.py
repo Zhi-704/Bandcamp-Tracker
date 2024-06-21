@@ -3,7 +3,7 @@
 from os import environ as ENV
 
 from psycopg import connect, Connection
-from dotenv import load_dotenv
+from psycopg.rows import dict_row
 import streamlit as st
 import pandas as pd
 
@@ -16,7 +16,8 @@ def get_connection() -> Connection:
         dbname=ENV["DB_NAME"],
         host=ENV["DB_ENDPOINT"],
         user=ENV["DB_USER"],
-        password=ENV["DB_PASSWORD"]
+        password=ENV["DB_PASSWORD"],
+        row_factory=dict_row
     )
 
 
@@ -79,7 +80,7 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular artists...")
 
     query = """
-        SELECT A.name, COUNT(AP.album_purchase_id)+COUNT(TP.track_purchase_id) AS total_sales
+        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales, COUNT(AP.album_purchase_id) + COUNT(TP.track_purchase_id) AS total_sales
         FROM artist as A
         JOIN album AS AB
         USING(artist_id)
@@ -111,21 +112,82 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
     query = """
         SELECT TG.name AS tag, COUNT(*) AS total_sales
         FROM tag AS TG
-        LEFT JOIN album_tag_assignment AS ATG
-        USING(tag_id)
-        LEFT JOIN track_tag_assignment AS TGA
-        USING(tag_id)
-        LEFT JOIN album AS A
+        JOIN album_tag_assignment AS ATG
+        ON ATG.tag_id =TG.tag_id
+        JOIN track_tag_assignment AS TGA
+        ON TGA.tag_id = TG.tag_id
+        JOIN album AS A
         USING(album_id)
-        LEFT JOIN track AS T
+        JOIN track AS T
         USING(track_id)
-        LEFT JOIN album_purchase AS AP
-        USING(album_id)
-        LEFT JOIN track_purchase AS TP
-        USING(track_id)
+        JOIN album_purchase AS AP
+        ON AP.album_id = A.album_id
+        JOIN track_purchase AS TP
+        ON TP.track_id = T.track_id
         GROUP BY tag
-        ORDER BY sales
+        ORDER BY total_sales DESC
         LIMIT %s
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (n, ))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)
+
+
+@st.cache_data(ttl="1hr")
+def get_all_tags(_conn: Connection) -> list:
+    """Returns all tags."""
+
+    print("Collecting tags...")
+
+    query = """
+        SELECT name
+        FROM tag
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
+    return sorted([d["name"] for d in data])
+
+
+def get_sales_by_country(_conn: Connection, n: int = 5):
+    """Returns the top n countries by sales."""
+
+    print("Counting sales by country...")
+
+    query = """
+        SELECT C.name, COUNT(album_purchase_id)+COUNT(track_purchase_id) AS total_sales
+        FROM country AS C
+        JOIN album_purchase AS AP
+        USING(country_id)
+        JOIN track_purchase AS TP
+        ON TP.country_id = C.country_id
+        GROUP BY C.name
+        ORDER BY total_sales DESC
+        LIMIT %s
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (n, ))
+        data = cur.fetchall()
+
+    return data
+
+
+def get_all_album_titles(_conn: Connection):
+    """Returns all album titles."""
+
+    print("Getting album titles...")
+
+    query = """
+        SELECT title
+        FROM album
         ;
         """
 
@@ -133,4 +195,27 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
         cur.execute(query)
         data = cur.fetchall()
 
-    return pd.DataFrame(data)
+    return sorted([d["title"] for d in data])
+
+
+def get_album_sales_by_album(_conn: Connection, album_name: str):
+    """Returns all album info for a given album."""
+
+    print(f"Counting album sales for album {album_name}...")
+
+    query = """
+        SELECT A.title, AT.name, AP.timestamp
+        FROM album_purchase AS AP
+        JOIN album AS A
+        USING (album_id)
+        JOIN artist as AT
+        USING (artist_id)
+        WHERE A.title = %s
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (album_name, ))
+        data = cur.fetchall()
+
+    return data

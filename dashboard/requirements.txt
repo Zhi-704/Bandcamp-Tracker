@@ -2,6 +2,7 @@ altair
 boto3
 pandas
 psycopg[binary]
+plotly
 pylint
 python-dotenv
 streamlit

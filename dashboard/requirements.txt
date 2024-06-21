@@ -1,8 +1,8 @@
-pylint
-python-dotenv
-streamlit
-pandas
 altair
 boto3
 psycopg[binary]
 plotly
+pandas
+pylint
+python-dotenv
+streamlit

@@ -9,7 +9,6 @@ if __name__ == "__main__":
     st.page_link("./Home.py", label="Home")
 
     email = ""
-    age = ""
     conn = get_connection()
 
     st.write(

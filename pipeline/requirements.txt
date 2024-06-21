@@ -1,10 +1,10 @@
-requests
-bs4
-pytest
-pylint
-python-dotenv
-pytest-cov
-logging
 aiohttp
 asyncio
+bs4
+logging
+python-dotenv
+pylint
+pytest
 pytest-asyncio
+pytest-cov
+requests

@@ -5,10 +5,10 @@ bs4
 logging
 pandas
 psycopg
-pytest
+python-dotenv
 pylint
+pytest
 pytest-asyncio
 pytest-cov
-python-dotenv
 requests
 streamlit

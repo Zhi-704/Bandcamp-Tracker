@@ -3,7 +3,6 @@
 from os import environ as ENV
 import psycopg2
 import psycopg2.extras
-from psycopg2 import sql
 from psycopg2.extensions import connection, cursor
 from dotenv import load_dotenv
 import logging
@@ -202,6 +201,7 @@ def load_sales_data(sales_data: list[dict]) -> None:
         connection = get_connection()
         with connection.cursor() as cursor:
             for sale in sales_data:
+                print(sale)
                 if sale["item_type"] == "a":
                     print('inserting album')
                     insert_album_sale(cursor, sale)
@@ -227,5 +227,4 @@ if __name__ == "__main__":
 
     list_of_items = get_sales_data()
     cleaned_data = transform_sales_data(list_of_items)
-    print(cleaned_data)
     load_sales_data(cleaned_data)

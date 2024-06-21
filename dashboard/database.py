@@ -180,14 +180,16 @@ def get_sales_by_country(_conn: Connection, n: int = 5):
     return data
 
 
-def get_all_album_titles(_conn: Connection):
+def get_all_album_purchase_titles(_conn: Connection):
     """Returns all album titles."""
 
     print("Getting album titles...")
 
     query = """
-        SELECT title
-        FROM album
+        SELECT A.title
+        FROM album_purchase as AP
+        LEFT JOIN album as A
+        USING (album_id)
         ;
         """
 
@@ -218,4 +220,4 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
         cur.execute(query, (album_name, ))
         data = cur.fetchall()
 
-    return data
+    return pd.DataFrame(data)

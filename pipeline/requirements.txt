@@ -7,3 +7,4 @@ pytest-cov
 logging
 aiohttp
 asyncio
+pytest-asyncio

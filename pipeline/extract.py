@@ -4,7 +4,6 @@
 import asyncio
 import json
 import logging
-from time import sleep
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -127,7 +126,7 @@ async def fetch_webpage(session: aiohttp.ClientSession, specified_url: str, time
             async with session.get(specified_url, timeout=timeout) as response:
                 if response.status == 200:
                     return await response.text()
-                elif response.status == 429:
+                if response.status == 429:
                     logging.info("Fetched too many pages. Retrying again...")
                     await asyncio.sleep(EXPONENTIAL_RETRY_DELAY ** attempt)
                 else:

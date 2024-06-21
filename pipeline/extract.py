@@ -12,13 +12,16 @@ import requests as req
 
 
 BANDCAMP_SALES_URL = "https://bandcamp.com/api/salesfeed/1/get_initial"
-MAX_TIMEOUT_SECONDS = 20
+MAX_TIMEOUT_SECONDS = 100
+DELAY_BETWEEN_REQUESTS = 0.1
+MAX_CONCURRENT_REQUESTS = 3
+EXPONENTIAL_RETRY_DELAY = 2
+MAXIMUM_FETCH_ATTEMPTS = 3
 
 
 def get_sale_data_from_api(site_url: str = BANDCAMP_SALES_URL,
                            max_timeout: int = MAX_TIMEOUT_SECONDS) -> dict:
     '''Get content from the specified api endpoint. Sleep was included to avoid a 429 error'''
-    sleep(10)
     try:
         response = req.get(site_url, timeout=max_timeout)
 
@@ -61,6 +64,7 @@ async def extract_list_of_items(event_list: list[dict],
                                 timeout: int = MAX_TIMEOUT_SECONDS) -> list[dict]:
     '''Extract all items from event list, where each element is an item'''
     item_list = []
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
     async with aiohttp.ClientSession() as session:
         tasks = []
         for event in event_list:
@@ -72,56 +76,72 @@ async def extract_list_of_items(event_list: list[dict],
             for item in event['items']:
                 if not (item["item_type"] == "a" or item["item_type"] == "t"):
                     continue
-                tasks.append(extract_and_scrape_item(session, item, timeout))
+                tasks.append(extract_and_scrape_item(
+                    semaphore, session, item, timeout))
 
         item_list = await asyncio.gather(*tasks)
 
     return item_list
 
 
-async def extract_and_scrape_item(session: aiohttp.ClientSession,
+async def extract_and_scrape_item(semaphore: asyncio.Semaphore,
+                                  session: aiohttp.ClientSession,
                                   purchase_dict: dict,
-                                  timeout: int) -> dict:
+                                  timeout: int,
+                                  delay: float = DELAY_BETWEEN_REQUESTS) -> dict:
     '''Scrape and extract information for an item, giving
     more complete information for the item'''
-    if purchase_dict["item_type"] == "t":
-        purchase_dict["track_tags"] = await scrape_tags(session,
-                                                        insert_protocol_url(
-                                                            purchase_dict["url"]),
-                                                        timeout)
-    if purchase_dict["item_type"] == "a":
-        purchase_dict["album_tags"] = await scrape_tags(session,
-                                                        insert_protocol_url(
-                                                            purchase_dict["url"]),
-                                                        timeout)
-    if purchase_dict["item_type"] == "t" and purchase_dict["album_title"] is not None:
-        stem_url = get_stem_url(insert_protocol_url(purchase_dict["url"]))
-        album_url = await scrape_album_url(session,
-                                           insert_protocol_url(
-                                               purchase_dict["url"]),
-                                           timeout)
 
-        if stem_url is not None and album_url is not None:
-            purchase_dict["album_url"] = stem_url + album_url
-            purchase_dict["album_tags"] = await scrape_tags(session, stem_url + album_url, timeout)
+    async with semaphore:
+        await asyncio.sleep(delay)
 
-    return purchase_dict
+        if purchase_dict["item_type"] == "t":
+            purchase_dict["track_tags"] = await scrape_tags(session,
+                                                            insert_protocol_url(
+                                                                purchase_dict["url"]),
+                                                            timeout)
+        if purchase_dict["item_type"] == "a":
+            purchase_dict["album_tags"] = await scrape_tags(session,
+                                                            insert_protocol_url(
+                                                                purchase_dict["url"]),
+                                                            timeout)
+        if purchase_dict["item_type"] == "t" and purchase_dict["album_title"] is not None:
+            await asyncio.sleep(delay)
+            stem_url = get_stem_url(insert_protocol_url(purchase_dict["url"]))
+            album_url = await scrape_album_url(session,
+                                               insert_protocol_url(
+                                                   purchase_dict["url"]),
+                                               timeout)
+
+            if stem_url is not None and album_url is not None:
+                purchase_dict["album_url"] = stem_url + album_url
+
+        logging.info("Item gathered!")
+        return purchase_dict
 
 
 async def fetch_webpage(session: aiohttp.ClientSession, specified_url: str, timeout: int):
     '''Get text/html content from a specified url'''
-    try:
-        async with session.get(specified_url, timeout=timeout) as response:
-            if response.status == 200:
-                return await response.text()
-            logging.error("Failed to fetch data. HTTP Status code: %s",
-                          response.status)
-            logging.error("The error specified url is: %s", specified_url)
-            return None
-    except aiohttp.ClientError as e:
-        logging.error("A fetch request error has occurred: %s", e)
-    except asyncio.TimeoutError as e:
-        logging.error("A fetch timeout error has occurred: %s", e)
+    for attempt in range(MAXIMUM_FETCH_ATTEMPTS):
+        try:
+            async with session.get(specified_url, timeout=timeout) as response:
+                if response.status == 200:
+                    return await response.text()
+                elif response.status == 429:
+                    logging.info("Fetched too many pages. Retrying again...")
+                    await asyncio.sleep(EXPONENTIAL_RETRY_DELAY ** attempt)
+                else:
+                    logging.error("Failed to fetch data. HTTP Status code: %s",
+                                  response.status)
+                    logging.error(
+                        "The error specified url is: %s", specified_url)
+                    return None
+        except aiohttp.ClientError as e:
+            logging.error("A fetch request error has occurred: %s", e)
+        except asyncio.TimeoutError as e:
+            logging.error("A fetch timeout error has occurred: %s", e)
+    logging.error(
+        "Request to %s exceeded maximum number of attempts", specified_url)
     return None
 
 
@@ -191,8 +211,10 @@ if __name__ == "__main__":
     logging.info("Sales data gathered")
     if data is not None:
         logging.info("Scraping begun")
+        print("Length of list:", len(data['feed_data']['events']))
         list_of_items = asyncio.run(
             extract_list_of_items(data['feed_data']['events']))
+        print("Item length: ", len(list_of_items))
         save_to_json(list_of_items, "Checking_again.json")
         logging.info("Scraping ended")
     else:

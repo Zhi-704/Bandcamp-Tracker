@@ -22,7 +22,8 @@ if __name__ == "__main__":
 
     with st.form("Subscriptions", clear_on_submit=False, border=True):
         st.header("Subscribe to emails")
-        name = st.text_input("Name")
+        if pdf:
+            name = st.text_input("Name")
         if pdf and not name:
             st.error("Missing field - you must enter a 'Name'")
         email = st.text_input("Email")

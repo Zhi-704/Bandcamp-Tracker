@@ -59,3 +59,11 @@ def create_choropleth_map(locations):
                             title="Sales",
                             labels={"total_sales": "Total sales", "name": "Country"})
     return fig_map
+
+
+def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
+
+    return alt.Chart(chosen_album).mark_line().encode(
+        x=alt.X("timestamp:T"),
+        y=alt.Y("sales:Q")
+    )

@@ -181,19 +181,42 @@ def get_sales_by_country(_conn: Connection, n: int = 5):
     return data
 
 
-def get_all_album_sales(_conn: Connection):
-    """Returns all album info."""
+def get_all_album_titles(_conn: Connection):
+    """Returns all album titles."""
 
-    print("Counting album sales...")
+    print("Getting album titles...")
 
     query = """
-        SELECT *
-        FROM album_purchase AS AP
+        SELECT title
+        FROM album
         ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (n, ))
+        cur.execute(query)
+        data = cur.fetchall()
+
+    return sorted([d["title"] for d in data])
+
+
+def get_album_sales_by_album(_conn: Connection, album_name: str):
+    """Returns all album info for a given album."""
+
+    print(f"Counting album sales for album {album_name}...")
+
+    query = """
+        SELECT A.title, AT.name, AP.timestamp
+        FROM album_purchase AS AP
+        JOIN album AS A
+        USING (album_id)
+        JOIN artist as AT
+        USING (artist_id)
+        WHERE A.title = %s
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (album_name, ))
         data = cur.fetchall()
 
     return data

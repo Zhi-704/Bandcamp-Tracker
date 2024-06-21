@@ -21,7 +21,6 @@ if __name__ == "__main__":
     artists = get_popular_artists(conn)
     tags = get_sales_by_tag(conn)
 
-    # specific_album = get_album_sales_by_album(conn)
     st.altair_chart(get_most_copies_sold_chart(
         tracks), use_container_width=True)
     st.altair_chart(get_most_copies_sold_chart(
@@ -30,10 +29,3 @@ if __name__ == "__main__":
         artists), use_container_width=True)
     st.altair_chart(get_most_popular_tags_chart(
         tags), use_container_width=True)
-
-    chosen_album = st.selectbox(
-        "Choose which album you would like to see", get_all_album_titles(conn))
-
-    chosen_album_data = get_album_sales_by_album(conn, chosen_album)
-    chosen_album_data
-    st.altair_chart(get_albums_sales_line_graph(chosen_album_data))

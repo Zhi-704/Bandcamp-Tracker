@@ -12,7 +12,7 @@ def get_most_copies_sold_chart(data: DataFrame) -> alt.Chart:
 
     return alt.Chart(data).mark_bar().encode(
         x=alt.X("title", title="Title"),
-        y=alt.Y("copies_sold:N", title="Copies sold"),
+        y=alt.Y("copies_sold:Q", title="Copies sold"),
         color=alt.Color("name", title="Artist")
     )
 

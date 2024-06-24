@@ -239,11 +239,8 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
     return data
 
 
-@st.cache_data(ttl="1hr")
-def get_sales_by_artist(_conn: Connection, artist_names) -> pd.DataFrame:
-    """Returns the sales data for a chosen artist"""
-
-    print(f"Counting sales for artist {artist_names}...")
+def get_sales(_conn: Connection) -> pd.DataFrame:
+    """Returns the sales data"""
 
     query = """
         SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales
@@ -256,13 +253,17 @@ def get_sales_by_artist(_conn: Connection, artist_names) -> pd.DataFrame:
         USING(artist_id)
         JOIN track_purchase as TP
         USING(track_id)
-        WHERE A.name = %s OR A.name = %s
         GROUP BY A.name
         ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (artist_names[0], artist_names[1]))
+        cur.execute(
+            query)
         data = cur.fetchall()
 
     return pd.DataFrame(data)
+
+
+def get_sales_for_chosen_artists(data, artist_names):
+    return data[data["name"].isin(artist_names)]

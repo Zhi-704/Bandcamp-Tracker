@@ -170,11 +170,7 @@ def get_all_tags(_conn: Connection) -> list:
 
 
 @st.cache_data(ttl="1hr")
-<<<<<<< HEAD
 def get_sales_by_country(_conn: Connection):
-=======
-def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.DataFrame:
->>>>>>> e003d3ac978fc7ea18f21ec218eafb73f8672ad9
     """Returns the top n countries by sales."""
 
     print("Counting sales by country...")
@@ -198,16 +194,8 @@ def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return data
 
 
-<<<<<<< HEAD
-@st.cache_data(ttl="1hr")
-=======
-<<<<<<< dashboard-multiple-bar
 @st.cache_data(ttl="1hr")
 def get_all_album_titles(_conn: Connection):
-=======
->>>>>>> e003d3ac978fc7ea18f21ec218eafb73f8672ad9
-def get_all_album_purchase_titles(_conn: Connection) -> pd.DataFrame:
->>>>>>> main
     """Returns all album titles."""
 
     print("Getting album titles...")
@@ -246,7 +234,6 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
         cur.execute(query, (album_name, ))
         data = cur.fetchall()
 
-<<<<<<< dashboard-multiple-bar
     return data
 
 
@@ -255,18 +242,20 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
     """Returns all sales data."""
 
     query = """
-        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales
+        SELECT A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales
         FROM artist as A
-        JOIN album AS AB
-        USING(artist_id)
-        JOIN album_purchase AS AP
-        USING(album_id)
-        JOIN track as T
-        USING(artist_id)
-        JOIN track_purchase as TP
-        USING(track_id)
-        GROUP BY A.name
-=======
+        LEFT JOIN album AS AB
+        ON AB.artist_id = A.artist_id
+        LEFT JOIN album_purchase AS AP
+        ON AP.album_id = AB.album_id
+        LEFT JOIN track as T
+        ON T.artist_id = A.artist_id
+        LEFT JOIN track_purchase as TP
+        ON TP.track_id = T.track_id
+        GROUP BY A.name;"""
+    with _conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
     return pd.DataFrame(data)
 
 
@@ -279,12 +268,10 @@ def get_all_tag_names(_conn: Connection) -> list[str]:
     query = """
         SELECT T.name
         FROM tag as T
->>>>>>> main
         ;
         """
 
     with _conn.cursor() as cur:
-<<<<<<< dashboard-multiple-bar
         cur.execute(
             query)
         data = cur.fetchall()
@@ -296,11 +283,6 @@ def get_all_tag_names(_conn: Connection) -> list[str]:
 def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[str]):
     """Returns sales data only for passed artists."""
     return sales_data[sales_data["name"].isin(artist_names)]
-=======
-        cur.execute(query)
-        data = cur.fetchall()
-
-    return [d["name"] for d in data]
 
 
 @st.cache_data(ttl="1hr")
@@ -334,4 +316,3 @@ def get_tag_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
         data = cur.fetchall()
 
     return pd.DataFrame(data)
->>>>>>> main

@@ -80,19 +80,22 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular artists...")
 
     query = """
-        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales, COUNT(AP.album_purchase_id) + COUNT(TP.track_purchase_id) AS total_sales
-        FROM artist as A
-        JOIN album AS AB
-        USING(artist_id)
-        JOIN album_purchase AS AP
-        USING(album_id)
-        JOIN track as T
-        USING(artist_id)
-        JOIN track_purchase as TP
-        USING(track_id)
-        GROUP BY AB.title, A.name
-        ORDER BY total_sales DESC
-        LIMIT %s
+            SELECT A.artist_id, A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales, COUNT(DISTINCT AP.album_purchase_id) + COUNT(DISTINCT TP.track_purchase_id) AS total_sales
+            FROM 
+                artist AS A
+            LEFT JOIN 
+                album AS AB ON A.artist_id = AB.artist_id
+            LEFT JOIN 
+                album_purchase AS AP ON AB.album_id = AP.album_id
+            LEFT JOIN 
+                track AS T ON A.artist_id = T.artist_id
+            LEFT JOIN 
+                track_purchase AS TP ON T.track_id = TP.track_id
+            GROUP BY 
+                A.artist_id, A.name
+            ORDER BY 
+                total_sales DESC
+            LIMIT %s;
         ;
         """
 

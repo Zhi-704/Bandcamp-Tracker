@@ -103,6 +103,7 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+@st.cache_data(ttl="1hr")
 def get_all_artists(_conn: Connection):
     """Returns all artists."""
 
@@ -110,7 +111,7 @@ def get_all_artists(_conn: Connection):
 
     query = """
         SELECT name
-        FROM artists
+        FROM artist
         ;
         """
 
@@ -236,3 +237,32 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
         data = cur.fetchall()
 
     return data
+
+
+@st.cache_data(ttl="1hr")
+def get_sales_by_artist(_conn: Connection, artist_names) -> pd.DataFrame:
+    """Returns the sales data for a chosen artist"""
+
+    print(f"Counting sales for artist {artist_names}...")
+
+    query = """
+        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales
+        FROM artist as A
+        JOIN album AS AB
+        USING(artist_id)
+        JOIN album_purchase AS AP
+        USING(album_id)
+        JOIN track as T
+        USING(artist_id)
+        JOIN track_purchase as TP
+        USING(track_id)
+        WHERE A.name = %s OR A.name = %s
+        GROUP BY A.name
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (artist_names[0], artist_names[1]))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)

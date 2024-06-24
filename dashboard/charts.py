@@ -42,8 +42,8 @@ def get_artist_track_sales_bar_chart(artists: DataFrame) -> alt.Chart:
     """Returns a bar chart showing track sales for top artists"""
 
     return alt.Chart(artists).mark_bar().encode(
-        x=alt.X("name", title="Artist"),
-        y=alt.Y("track_sales:Q", title="Track sales")
+        x=alt.X("name:N", title="Artist"),
+        y=alt.Y("track_sales:Q", title="Tracks sold")
     )
 
 
@@ -52,8 +52,8 @@ def get_artist_album_sales_bar_chart(artists: DataFrame) -> alt.Chart:
     """Returns a bar chart showing split of albums sales for top artists"""
 
     return alt.Chart(artists).mark_bar().encode(
-        x=alt.X("name", title="Artist"),
-        y=alt.Y("album_sales:Q", title="Album sales")
+        x=alt.X("name:N", title="Artist"),
+        y=alt.Y("album_sales:Q", title="Albums sold")
     )
 
 

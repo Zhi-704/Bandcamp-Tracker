@@ -188,7 +188,7 @@ def get_all_album_purchase_titles(_conn: Connection):
     query = """
         SELECT A.title
         FROM album_purchase as AP
-        LEFT JOIN album as A
+        RIGHT JOIN album as A
         USING (album_id)
         ;
         """
@@ -218,6 +218,56 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
 
     with _conn.cursor() as cur:
         cur.execute(query, (album_name, ))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)
+
+
+def get_all_tag_names(_conn: Connection):
+    """Returns all tag names."""
+
+    print("Getting tag names...")
+
+    query = """
+        SELECT T.name
+        FROM tag as T
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
+
+    return [d["name"] for d in data]
+
+
+def get_tag_sales_by_tag(_conn: Connection, tag_name: str):
+    """Returns all sales for a given tag."""
+
+    print(f"Counting tag sales for tag {tag_name}...")
+
+    query = """
+        SELECT DATE_TRUNC('minute', AP.timestamp) AS minute, COUNT(AP.album_purchase_id)+COUNT(TP.track_purchase_id) as sales
+        FROM tag AS T
+        LEFT JOIN album_tag_assignment AS ATA
+        USING(tag_id)
+        LEFT JOIN album as A
+        USING(album_id)
+        LEFT JOIN album_purchase as AP
+        ON AP.album_id = A.album_id
+        LEFT JOIN track_tag_assignment as TTA
+        ON (T.tag_id = TTA.tag_id)
+        LEFT JOIN track as TK
+        USING (track_id)
+        LEFT JOIN track_purchase as TP
+        ON (TP.track_id = TK.track_id)
+        WHERE T.name = %s
+        GROUP BY minute
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (tag_name, ))
         data = cur.fetchall()
 
     return pd.DataFrame(data)

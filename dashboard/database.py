@@ -239,7 +239,7 @@ def get_all_tag_names(_conn: Connection) -> list[str]:
     return [d["name"] for d in data]
 
 
-def get_tag_sales_by_tag(_conn: Connection, tag_name: str):
+def get_tag_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")

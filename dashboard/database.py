@@ -186,10 +186,8 @@ def get_all_album_purchase_titles(_conn: Connection):
     print("Getting album titles...")
 
     query = """
-        SELECT A.title
-        FROM album_purchase as AP
-        RIGHT JOIN album as A
-        USING (album_id)
+        SELECT title
+        FROM album
         ;
         """
 

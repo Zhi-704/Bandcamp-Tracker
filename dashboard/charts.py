@@ -73,7 +73,7 @@ def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
 
 def get_tag_sales_line_graph(chosen_tag) -> alt.Chart:
     """Returns a line graph of sales over time for a chosen tag"""
-    return alt.Chart(chosen_tag).mark_line().encode(
+    return alt.Chart(chosen_tag).mark_line(point=True).encode(
         x=alt.X("minute:T"),
         y=alt.Y("sales:Q")
     ).interactive()

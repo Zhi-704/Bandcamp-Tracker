@@ -221,7 +221,7 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
     return pd.DataFrame(data)
 
 
-def get_all_tag_names(_conn: Connection):
+def get_all_tag_names(_conn: Connection) -> list[str]:
     """Returns all tag names."""
 
     print("Getting tag names...")

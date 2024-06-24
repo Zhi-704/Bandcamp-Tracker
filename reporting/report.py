@@ -14,6 +14,9 @@ Could do that they subscribe to an artist?
 If they are, push a message to the topic
 '''
 
+TRENDING_THRESHOLD = 100
+FILTER_GROUP = "c11-apollo-"
+
 
 def get_connection() -> Connection:
     """gets a connection"""
@@ -35,34 +38,9 @@ def get_sns_client() -> client:
                   )
 
 
-def get_popular_tracks(_conn: Connection,
-                       n: int = 5,
-                       genre: str = "") -> pd.DataFrame:
-    """Returns the N most sold tracks in the database."""
-
-    print("Collating most popular tracks...")
-
-    query = """
-        SELECT T.title, A.name as band, COUNT(*) AS copies_sold
-        FROM track_purchase AS PT
-        JOIN track AS T USING(track_id)
-        JOIN artist as A USING(artist_id)
-        GROUP BY T.title, A.name
-        ORDER BY copies_sold DESC
-        LIMIT %s
-        ;
-        """
-
-    with _conn.cursor() as cur:
-        cur.execute(query, (n,))
-        data = cur.fetchall()
-    print(data)
-    return pd.DataFrame(data)
-
-
-def filter_topics(filter: str, topic_list: list[dict]) -> list[dict]:
+def filter_topics(filter_word: str, topic_list: list[dict]) -> list[dict]:
     '''Filters list of topics with relevant topics'''
-    return [topic for topic in topic_list if filter in topic['TopicArn']]
+    return [topic for topic in topic_list if filter_word in topic['TopicArn']]
 
 
 def get_list_of_tags_arn(sns_client: client) -> list[dict]:
@@ -73,17 +51,104 @@ def get_list_of_tags_arn(sns_client: client) -> list[dict]:
     return None
 
 
+def publish_to_topic(sns_client: client, topic_arn: str,  tag: str, item_name: str, item_author: str, item_type: str, item_url: str) -> dict:
+    '''Publishes a message to a topic, which sends an email to all subscribers'''
+
+    subject = f"New trending {item_type} for {tag}!"
+    message = f"The {item_type} '{item_name}' by '{
+        item_author}' is currently trending!\n"
+    message += f"Check it out here at: {item_url}"
+
+    response = sns_client.publish(
+        TopicArn=topic_arn,
+        Subject=subject,
+        Message=message,
+    )
+    return response
+
+
+def get_tag_arn(tag: str, arn_list: list[dict]) -> list[str]:
+    '''Get the arn of a specific tag if it exists'''
+    return [arn['TopicArn'] for arn in arn_list if tag in arn['TopicArn']]
+
+
+def get_sales_data_of_tag(conn: Connection, item_type: str, tag: str, sales_limit: int = TRENDING_THRESHOLD) -> list[dict]:
+    query = f'''
+SELECT
+    T.{item_type}_id,
+    T.title,
+    A.name AS band,
+    COUNT(DISTINCT TP.{item_type}_purchase_id) AS copies_sold,
+    T.url
+FROM {item_type}_purchase AS TP
+JOIN {item_type} AS T ON TP.{item_type}_id = T.{item_type}_id
+JOIN artist AS A ON T.artist_id = A.artist_id
+JOIN {item_type}_tag_assignment AS TTA ON T.{item_type}_id = TTA.{item_type}_id
+JOIN tag AS TG ON TTA.tag_id = TG.tag_id
+WHERE TG.name = %s
+GROUP BY
+    T.{item_type}_id,
+    T.title,
+    A.name
+HAVING COUNT(DISTINCT TP.{item_type}_purchase_id) >= %s
+ORDER BY copies_sold DESC
+'''
+
+    with conn.cursor() as cur:
+        cur.execute(query, (tag, sales_limit))
+        trending_data = cur.fetchall()
+
+    if len(trending_data) >= 1:
+        return trending_data
+    return None
+
+
+def get_all_tags(conn: Connection) -> list[str]:
+    query = '''
+    SELECT name
+    FROM tag;'''
+    with conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
+    return [tag['name'] for tag in data]
+
+
+def extract_tag_name(topic_arn: str) -> str:
+    return topic_arn.split('-')[-1]
+
+
 if __name__ == "__main__":
     load_dotenv()
-    # conn = get_connection()
-    # df = get_popular_tracks(conn)
-    # conn.close()
-    # print(df.head())
-    sns_client = get_sns_client()
-    topics = get_list_of_tags_arn(sns_client)
-    tag_topics = filter_topics('apollo', topics)
-    test_arn = tag_topics[0]['TopicArn']
-    sub = sns_client.list_subscriptions_by_topic(
-        TopicArn=test_arn
-    )
-    print(sub['Subscriptions'])
+
+    conn = get_connection()
+    sns = get_sns_client()
+
+    topics = get_list_of_tags_arn(sns)
+    tags_list = filter_topics('apollo', topics)
+
+    for tag_arn in tags_list:
+        topic_arn = tag_arn['TopicArn']
+        tag_name = extract_tag_name(topic_arn)
+        tag_arn['Tag'] = tag_name
+
+    print(tags_list)
+
+    for tag_dict in tags_list:
+        trending_albums = get_sales_data_of_tag(
+            conn, 'album', tag_dict['Tag'], 3)
+        trending_tracks = get_sales_data_of_tag(
+            conn, 'track', tag_dict['Tag'], 3)
+        print(f"Trending album ({tag_dict['Tag']}) : ", trending_albums)
+        print(f"Trending track ({tag_dict['Tag']}) : ", trending_tracks)
+
+        if trending_albums:
+            for album in trending_albums:
+                publish_to_topic(sns, tag_dict['TopicArn'],
+                                 tag_dict['Tag'], album['title'], album['band'], 'album', album['url'])
+
+        if trending_tracks:
+            for track in trending_tracks:
+                publish_to_topic(sns, tag_dict['TopicArn'],
+                                 tag_dict['Tag'], track['title'], track['band'], 'track', track['url'])
+
+    conn.close()

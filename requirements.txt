@@ -2,9 +2,11 @@ aiohttp
 altair
 asyncio
 bs4
+boto3
 logging
 pandas
-psycopg
+plotly
+psycopg2-binary
 python-dotenv
 pylint
 pytest

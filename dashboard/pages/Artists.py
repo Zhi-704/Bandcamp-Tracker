@@ -20,10 +20,11 @@ if __name__ == "__main__":
         all_sales, chosen_artists)
 
     col = st.columns(2)
-    with col[0]:
-        st.altair_chart(
-            get_artist_album_sales_bar_chart(chosen_artists_data))
+    if chosen_artists:
+        with col[0]:
+            st.altair_chart(
+                get_artist_album_sales_bar_chart(chosen_artists_data))
 
-    with col[1]:
-        st.altair_chart(
-            get_artist_track_sales_bar_chart(chosen_artists_data))
+        with col[1]:
+            st.altair_chart(
+                get_artist_track_sales_bar_chart(chosen_artists_data))

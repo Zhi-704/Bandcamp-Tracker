@@ -180,7 +180,7 @@ def get_sales_by_country(_conn: Connection, n: int = 5):
     return data
 
 
-def get_all_album_purchase_titles(_conn: Connection):
+def get_all_album_purchase_titles(_conn: Connection) -> pd.DataFrame:
     """Returns all album titles."""
 
     print("Getting album titles...")

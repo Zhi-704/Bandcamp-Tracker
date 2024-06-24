@@ -19,7 +19,7 @@ CREATE TABLE subscriber (
 CREATE TABLE artist (
     artist_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name TEXT NOT NULL,
-    url TEXT UNIQUE NOT NULL
+    url TEXT NOT NULL
 );
 
 CREATE TABLE album (

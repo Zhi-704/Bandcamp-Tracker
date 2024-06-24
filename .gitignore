@@ -3,8 +3,12 @@
 
 *.csv
 *.json
+*.ipynb
+*.txt
 
 .pytest_cache
 __pycache__
 .coverage
 
+!requirements.txt
+!local_requirements.txt

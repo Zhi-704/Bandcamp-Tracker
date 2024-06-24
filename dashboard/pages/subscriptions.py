@@ -1,5 +1,6 @@
 """A dashboard page that lets you sign up for notifications."""
 
+import boto3
 import streamlit as st
 
 from database import get_all_tags, get_connection
@@ -26,7 +27,6 @@ if __name__ == "__main__":
 
     st.page_link("./Home.py", label="Home")
 
-    email = ""
     conn = get_connection()
 
     st.write(

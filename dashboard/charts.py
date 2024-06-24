@@ -32,7 +32,7 @@ def get_most_popular_tags_chart(tags: DataFrame) -> alt.Chart:
     """Returns a bar chart of popular tags and their sales."""
 
     return alt.Chart(tags).mark_bar().encode(
-        x=alt.X("tag", title="Tags"),
+        x=alt.X("name:N", title="Tags"),
         y=alt.Y("total_sales:Q", title="Sales")
     )
 
@@ -62,6 +62,7 @@ def create_choropleth_map(locations):
     return fig_map
 
 
+@st.cache_data
 def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
     """Returns a line graph of sales over time for a chosen album."""
     return alt.Chart(chosen_album).mark_line().encode(
@@ -71,9 +72,10 @@ def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
     ).interactive()
 
 
+@st.cache_data
 def get_tag_sales_line_graph(chosen_tag) -> alt.Chart:
     """Returns a line graph of sales over time for a chosen tag"""
     return alt.Chart(chosen_tag).mark_line(point=True).encode(
-        x=alt.X("minute:T"),
+        x=alt.X("hour:T"),
         y=alt.Y("sales:Q")
     ).interactive()

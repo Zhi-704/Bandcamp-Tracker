@@ -33,7 +33,7 @@ CREATE TABLE album (
 CREATE TABLE track (
     track_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title TEXT NOT NULL,
-    album_id INT NOT NULL,
+    album_id INT,
     artist_id INT NOT NULL,
     url TEXT UNIQUE NOT NULL,
     FOREIGN KEY (artist_id) REFERENCES artist(artist_id)  

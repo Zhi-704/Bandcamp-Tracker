@@ -103,6 +103,23 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+def get_all_artists(_conn: Connection):
+    """Returns all artists."""
+
+    print("Collecting artists...")
+
+    query = """
+        SELECT name
+        FROM artists
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query)
+        data = cur.fetchall()
+    return sorted([d["name"] for d in data])
+
+
 @st.cache_data(ttl="1hr")
 def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the top n genre/tag by sales."""

@@ -9,7 +9,6 @@ if __name__ == "__main__":
 
     conn = get_connection()
     pop_artists = get_popular_artists(conn)
-    pop_artists
     st.altair_chart(get_most_popular_artists_chart(
         pop_artists), use_container_width=True)
 
@@ -19,6 +18,7 @@ if __name__ == "__main__":
     all_sales = get_sales(conn)
     chosen_artists_data = get_sales_for_chosen_artists(
         all_sales, chosen_artists)
+
     col = st.columns(2)
     with col[0]:
         st.altair_chart(

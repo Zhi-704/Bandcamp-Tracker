@@ -174,7 +174,7 @@ def get_all_tags(_conn: Connection) -> list:
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_by_country(_conn: Connection, n: int = 5):
+def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.Dataframe:
     """Returns the top n countries by sales."""
 
     print("Counting sales by country...")
@@ -270,6 +270,6 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_for_chosen_artists(data, artist_names):
+def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[str]):
     """Returns sales data only for passed artists."""
-    return data[data["name"].isin(artist_names)]
+    return sales_data[sales_data["name"].isin(artist_names)]

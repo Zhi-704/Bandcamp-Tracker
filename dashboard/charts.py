@@ -72,6 +72,7 @@ def create_choropleth_map(locations):
     return fig_map
 
 
+@st.cache_data
 def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
     """Returns a line graph of sales over time."""
     return alt.Chart(chosen_album).mark_line().encode(

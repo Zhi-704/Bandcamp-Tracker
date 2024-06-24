@@ -190,6 +190,7 @@ def get_sales_data() -> list[dict]:
     logging.info("Sales data gathered")
     if sales_data is not None:
         logging.info("Scraping begun")
+        logging.info("Sales List Length:", len(data['feed_data']['events']))
         list_of_albums_tracks = asyncio.run(
             extract_list_of_items(sales_data['feed_data']['events']))
         logging.info("Scraping ended")
@@ -210,10 +211,9 @@ if __name__ == "__main__":
     logging.info("Sales data gathered")
     if data is not None:
         logging.info("Scraping begun")
-        print("Length of list:", len(data['feed_data']['events']))
+        logging.info("Length of list:", len(data['feed_data']['events']))
         list_of_items = asyncio.run(
             extract_list_of_items(data['feed_data']['events']))
-        print("Item length: ", len(list_of_items))
         save_to_json(list_of_items, "Checking_again.json")
         logging.info("Scraping ended")
     else:

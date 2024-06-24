@@ -7,8 +7,6 @@ logging
 pandas
 plotly
 psycopg2-binary
-psycopg2-extras
-psycopg2-extensions
 python-dotenv
 pylint
 pytest

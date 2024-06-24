@@ -174,7 +174,7 @@ def get_all_tags(_conn: Connection) -> list:
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.Dataframe:
+def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.DataFrame:
     """Returns the top n countries by sales."""
 
     print("Counting sales by country...")

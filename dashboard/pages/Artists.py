@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     all_artists = get_all_artists(conn)
     chosen_artists = st.multiselect(
-        "Choose 4 artists to compare their track and album sales", all_artists, max_selections=4, placeholder="Choose artists...")
+        "Choose artists to compare their track vs. album sales", all_artists, placeholder="Choose artists...")
     all_sales = get_sales(conn)
     chosen_artists_data = get_sales_for_chosen_artists(
         all_sales, chosen_artists)

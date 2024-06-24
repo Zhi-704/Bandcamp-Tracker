@@ -173,6 +173,7 @@ def get_all_tags(_conn: Connection) -> list:
     return sorted([d["name"] for d in data])
 
 
+@st.cache_data(ttl="1hr")
 def get_sales_by_country(_conn: Connection, n: int = 5):
     """Returns the top n countries by sales."""
 
@@ -198,6 +199,7 @@ def get_sales_by_country(_conn: Connection, n: int = 5):
     return data
 
 
+@st.cache_data(ttl="1hr")
 def get_all_album_titles(_conn: Connection):
     """Returns all album titles."""
 
@@ -216,6 +218,7 @@ def get_all_album_titles(_conn: Connection):
     return sorted([d["title"] for d in data])
 
 
+@st.cache_data(ttl="1hr")
 def get_album_sales_by_album(_conn: Connection, album_name: str):
     """Returns all album info for a given album."""
 
@@ -239,8 +242,9 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
     return data
 
 
+@st.cache_data(ttl="1hr")
 def get_sales(_conn: Connection) -> pd.DataFrame:
-    """Returns the sales data"""
+    """Returns all sales data."""
 
     query = """
         SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales
@@ -265,5 +269,7 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+@st.cache_data(ttl="1hr")
 def get_sales_for_chosen_artists(data, artist_names):
+    """Returns sales data only for passed artists."""
     return data[data["name"].isin(artist_names)]

@@ -1,4 +1,4 @@
-"""A dashboard page that lets you view sales by track vs. albums for top artists."""
+"""A dashboard page that lets you view sales by track vs. albums for artists."""
 
 import streamlit as st
 

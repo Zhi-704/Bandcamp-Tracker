@@ -80,19 +80,22 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular artists...")
 
     query = """
-        SELECT A.name, COUNT(AP.album_purchase_id) AS album_sales, COUNT(TP.track_purchase_id) AS track_sales, COUNT(AP.album_purchase_id) + COUNT(TP.track_purchase_id) AS total_sales
-        FROM artist as A
-        JOIN album AS AB
-        USING(artist_id)
-        JOIN album_purchase AS AP
-        USING(album_id)
-        JOIN track as T
-        USING(artist_id)
-        JOIN track_purchase as TP
-        USING(track_id)
-        GROUP BY AB.title, A.name
-        ORDER BY total_sales DESC
-        LIMIT %s
+            SELECT A.artist_id, A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales, COUNT(DISTINCT AP.album_purchase_id) + COUNT(DISTINCT TP.track_purchase_id) AS total_sales
+            FROM 
+                artist AS A
+            LEFT JOIN 
+                album AS AB ON A.artist_id = AB.artist_id
+            LEFT JOIN 
+                album_purchase AS AP ON AB.album_id = AP.album_id
+            LEFT JOIN 
+                track AS T ON A.artist_id = T.artist_id
+            LEFT JOIN 
+                track_purchase AS TP ON T.track_id = TP.track_id
+            GROUP BY 
+                A.artist_id, A.name
+            ORDER BY 
+                total_sales DESC
+            LIMIT %s;
         ;
         """
 
@@ -199,8 +202,12 @@ def get_sales_by_country(_conn: Connection, n: int = 5) -> pd.DataFrame:
     return data
 
 
+<<<<<<< dashboard-multiple-bar
 @st.cache_data(ttl="1hr")
 def get_all_album_titles(_conn: Connection):
+=======
+def get_all_album_purchase_titles(_conn: Connection) -> pd.DataFrame:
+>>>>>>> main
     """Returns all album titles."""
 
     print("Getting album titles...")
@@ -239,6 +246,7 @@ def get_album_sales_by_album(_conn: Connection, album_name: str):
         cur.execute(query, (album_name, ))
         data = cur.fetchall()
 
+<<<<<<< dashboard-multiple-bar
     return data
 
 
@@ -258,10 +266,24 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
         JOIN track_purchase as TP
         USING(track_id)
         GROUP BY A.name
+=======
+    return pd.DataFrame(data)
+
+
+def get_all_tag_names(_conn: Connection) -> list[str]:
+    """Returns all tag names."""
+
+    print("Getting tag names...")
+
+    query = """
+        SELECT T.name
+        FROM tag as T
+>>>>>>> main
         ;
         """
 
     with _conn.cursor() as cur:
+<<<<<<< dashboard-multiple-bar
         cur.execute(
             query)
         data = cur.fetchall()
@@ -273,3 +295,41 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
 def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[str]):
     """Returns sales data only for passed artists."""
     return sales_data[sales_data["name"].isin(artist_names)]
+=======
+        cur.execute(query)
+        data = cur.fetchall()
+
+    return [d["name"] for d in data]
+
+
+def get_tag_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
+    """Returns all sales for a given tag."""
+
+    print(f"Counting tag sales for tag {tag_name}...")
+
+    query = """
+        SELECT DATE_TRUNC('minute', AP.timestamp) AS minute, COUNT(AP.album_purchase_id)+COUNT(TP.track_purchase_id) as sales
+        FROM tag AS T
+        LEFT JOIN album_tag_assignment AS ATA
+        USING(tag_id)
+        LEFT JOIN album as A
+        USING(album_id)
+        LEFT JOIN album_purchase as AP
+        ON AP.album_id = A.album_id
+        LEFT JOIN track_tag_assignment as TTA
+        ON (T.tag_id = TTA.tag_id)
+        LEFT JOIN track as TK
+        USING (track_id)
+        LEFT JOIN track_purchase as TP
+        ON (TP.track_id = TK.track_id)
+        WHERE T.name = %s
+        GROUP BY minute
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (tag_name, ))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)
+>>>>>>> main

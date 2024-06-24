@@ -74,8 +74,17 @@ def create_choropleth_map(locations):
 
 @st.cache_data
 def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
-    """Returns a line graph of sales over time."""
+    """Returns a line graph of sales over time for a chosen album."""
     return alt.Chart(chosen_album).mark_line().encode(
         x=alt.X("timestamp:T"),
+        y=alt.Y("sales:Q"),
+        color="name:N"
+    ).interactive()
+
+
+def get_tag_sales_line_graph(chosen_tag) -> alt.Chart:
+    """Returns a line graph of sales over time for a chosen tag"""
+    return alt.Chart(chosen_tag).mark_line(point=True).encode(
+        x=alt.X("minute:T"),
         y=alt.Y("sales:Q")
-    )
+    ).interactive()

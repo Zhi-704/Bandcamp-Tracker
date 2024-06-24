@@ -1,10 +1,28 @@
-.env
+# Operating System Files
+*.DS_Store
+
+# Virtual Environment
 .venv
 
+# Environment Variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache
+.coverage
+
+# Project Data
 *.csv
 *.json
 
-.pytest_cache
-__pycache__
-.coverage
-.DS_Store
+# Terraform
+*.terraform
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# IDE (VSCode)
+.vscode/

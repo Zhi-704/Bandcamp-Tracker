@@ -260,7 +260,7 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
 
 
 @st.cache_data(ttl="1hr")
-def get_all_tag_names(_conn: Connection) -> list[str]:
+def get_all_tag_names(_conn: Connection) -> list(str):
     """Returns all tag names."""
 
     print("Getting tag names...")

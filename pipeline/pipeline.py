@@ -1,6 +1,5 @@
 """Main script for running the ETL Pipeline."""
 
-import asyncio
 import logging
 from dotenv import load_dotenv
 from extract import get_sales_data

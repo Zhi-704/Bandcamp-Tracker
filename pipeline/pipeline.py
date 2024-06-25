@@ -1,5 +1,6 @@
 """Main script for running the ETL Pipeline."""
 
+import asyncio
 import logging
 from dotenv import load_dotenv
 from extract import get_sales_data
@@ -7,7 +8,7 @@ from transform import transform_sales_data
 from load import load_sales_data
 
 
-def main() -> None:
+def main(event, context):
     """
     Main function to execute the ETL (Extract, Transform, Load) pipeline.
 
@@ -31,7 +32,3 @@ def main() -> None:
 
     except Exception as e:
         logging.error("An error occurred during ETL pipeline execution: %s", e)
-
-
-if __name__ == "__main__":
-    main()

@@ -16,3 +16,4 @@ pytest-cov
 requests
 streamlit
 streamlit-navigation-bar
+watchdog

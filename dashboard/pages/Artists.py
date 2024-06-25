@@ -11,7 +11,7 @@ def show_artists():
     conn = get_connection()
     pop_artists = get_popular_artists(conn)
     st.header("Top Artists")
-    st.write("Click on the bar to be taken to the relavant page on Bandcamp")
+    st.write("Click on the bar to be taken to the relevant page on Bandcamp")
 
     st.altair_chart(get_most_popular_artists_chart(
         pop_artists), use_container_width=True)

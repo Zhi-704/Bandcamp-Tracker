@@ -19,11 +19,12 @@ def show_home():
     tracks = database.get_popular_tracks(conn)
     albums = database.get_popular_albums(conn)
     st.subheader("Top Tracks")
+    st.write("Click on the bar to be taken to the relevant page on Bandcamp")
+
     st.altair_chart(charts.get_most_copies_sold_chart(
         tracks), use_container_width=True)
     st.subheader("Top Albums")
+    st.write("Click on the bar to be taken to the relevant page on Bandcamp")
+
     st.altair_chart(charts.get_most_copies_sold_chart(
         albums), use_container_width=True)
-
-    chosen_album = st.selectbox(
-        "Choose which album you would like to see", album_titles)

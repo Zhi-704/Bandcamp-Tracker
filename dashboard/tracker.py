@@ -11,7 +11,7 @@ if __name__ == "__main__":
     load_dotenv()
     pages = ["Home", "Artists", "Locations", "Subscriptions", "Tags"]
     options = {
-        "show_menu": True,
+        "show_menu": False,
         "show_sidebar": False,
     }
     page = st_navbar(pages, options=options)

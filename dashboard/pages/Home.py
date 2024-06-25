@@ -20,14 +20,12 @@ def show_home():
 
     tracks = database.get_popular_tracks(conn)
     albums = database.get_popular_albums(conn)
-    tags = database.get_sales_by_tag(conn)
-
+    st.subheader("Top Tracks")
     st.altair_chart(charts.get_most_copies_sold_chart(
         tracks), use_container_width=True)
+    st.subheader("Top Albums")
     st.altair_chart(charts.get_most_copies_sold_chart(
         albums), use_container_width=True)
-    st.altair_chart(charts.get_most_popular_tags_chart(
-        tags), use_container_width=True)
 
     chosen_album = st.selectbox(
         "Choose which album you would like to see", album_titles)

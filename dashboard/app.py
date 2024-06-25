@@ -10,7 +10,7 @@ if __name__ == "__main__":
     st.set_page_config(initial_sidebar_state="collapsed")
     pages = ["Home", "Artists", "Locations", "Subscriptions", "Tags"]
     options = {
-        "show_menu": False,
+        "show_menu": True,
         "show_sidebar": False,
     }
     page = st_navbar(pages, options=options)

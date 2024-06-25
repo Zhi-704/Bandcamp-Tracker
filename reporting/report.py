@@ -7,7 +7,6 @@ from psycopg import connect, Connection
 from psycopg.rows import dict_row
 from boto3 import client
 
-# Implement time interval
 
 TRENDING_THRESHOLD = 100
 FILTER_TOPICS_BY = "c11-apollo-"
@@ -68,7 +67,7 @@ JOIN artist AS A ON T.artist_id = A.artist_id
 JOIN {item_type}_tag_assignment AS TTA ON T.{item_type}_id = TTA.{item_type}_id
 JOIN tag AS TG ON TTA.tag_id = TG.tag_id
 WHERE TG.name = %s
-AND TP.timestamp >= NOW() - INTERVAL %s
+AND TP.timestamp >= NOW() - INTERVAL '{sales_timeframe}'
 GROUP BY
     T.{item_type}_id,
     T.title,
@@ -80,7 +79,7 @@ ORDER BY copies_sold DESC
 
     try:
         with conn.cursor() as cur:
-            cur.execute(query, (tag, sales_timeframe, sales_limit))
+            cur.execute(query, (tag, sales_limit))
             trending = cur.fetchall()
 
         if len(trending) >= 1:
@@ -93,17 +92,8 @@ ORDER BY copies_sold DESC
     return []
 
 
-def get_all_tags(conn: Connection) -> list[str]:
-    query = '''
-    SELECT name
-    FROM tag;'''
-    with conn.cursor() as cur:
-        cur.execute(query)
-        data = cur.fetchall()
-    return [tag['name'] for tag in data]
-
-
 def extract_tag_name(topic_arn: str) -> str:
+    '''Extracts the tag name from the topic arn'''
     raw_tag = topic_arn.split(':')[-1]
     tag_parts = raw_tag.split('-')[2:]
     return ' '.join(tag_parts).lower()
@@ -141,6 +131,7 @@ def publish_list_to_topic(sns_client: client, topic_arn: str,  tag: str, trendin
 
 
 def add_tags_to_dictionary(tags_list: list[dict]) -> list[dict]:
+    '''Grabs the tags from list of arns'''
     for tag_arn in tags_list:
         topic_arn = tag_arn['TopicArn']
         tag_name = extract_tag_name(topic_arn)
@@ -148,7 +139,8 @@ def add_tags_to_dictionary(tags_list: list[dict]) -> list[dict]:
     return tags_list
 
 
-def get_trending_items(conn: Connection, item_type: str, tag_name: str):
+def get_trending_items(conn: Connection, item_type: str, tag_name: str) -> list[dict]:
+    '''Grabs trending data for a specific item type and adds its type to the dictionary'''
     trending_items = get_sales_data_of_tag(
         conn, item_type, tag_name, 3)
 
@@ -161,12 +153,7 @@ def get_trending_items(conn: Connection, item_type: str, tag_name: str):
     return trending_items
 
 
-if __name__ == "__main__":
-    configure_log()
-    load_dotenv()
-
-    logging.info("Notification started.")
-
+def notification_system() -> None:
     conn = get_connection()
     sns = get_sns_client()
 
@@ -182,15 +169,24 @@ if __name__ == "__main__":
         trending_data = trending_tracks + trending_albums
 
         if len(trending_data) == 0:
-            logging.info("No trending items found for %s",
+            logging.info("No trending items found for %s \n",
                          tag_dict['Tag'])
             continue
         elif len(trending_data) >= 1:
             publish_list_to_topic(
                 sns, tag_dict['TopicArn'], tag_dict['Tag'].title(), trending_data)
-            logging.info("Email sent for %s",
+            logging.info("Email sent for %s \n",
                          tag_dict['Tag'])
 
     conn.close()
+
+
+if __name__ == "__main__":
+    configure_log()
+    load_dotenv()
+
+    logging.info("Notification system started.")
+
+    notification_system()
 
     logging.info("Notification system ended.")

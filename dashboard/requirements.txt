@@ -6,3 +6,4 @@ plotly
 pylint
 python-dotenv
 streamlit
+watchdog

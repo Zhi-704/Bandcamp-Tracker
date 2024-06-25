@@ -58,6 +58,13 @@ def clean_data(sales_data: dict) -> dict:
     }
 
 
+def clean_tags(tags: list[str]) -> list[str]:
+    """Removes leading/trailing whitespace and 'lowercases' a list of tags, returning it."""
+    if tags is None:
+        return []
+    return [tag.strip().lower() for tag in tags]
+
+
 def transform_sales_data(sales_data: list[dict]) -> list[dict]:
     """Cleans and formats the sales data, returning it as a list of dictionaries."""
 
@@ -70,6 +77,9 @@ def transform_sales_data(sales_data: list[dict]) -> list[dict]:
         item["utc_date"] = convert_unix_to_datetime(item["utc_date"])
         item["url"] = insert_protocol_url(item["url"])
         item["artist_url"] = get_stem_url(item["url"])
+
+        item["album_tags"] = clean_tags(item.get("album_tags"))
+        item["track_tags"] = clean_tags(item.get("track_tags"))
 
         cleaned_sales.append(clean_data(item))
 

@@ -7,7 +7,7 @@ from transform import transform_sales_data
 from load import load_sales_data
 
 
-def main(event, context):
+def main(event, context):  # pylint: disable=unused-argument
     """
     Main function to execute the ETL (Extract, Transform, Load) pipeline.
 

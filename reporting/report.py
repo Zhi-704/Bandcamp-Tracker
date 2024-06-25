@@ -15,7 +15,7 @@ TRENDING_TIMEFRAME = '8 hours'
 
 
 def get_connection() -> Connection:
-    """gets a connection"""
+    """Gets a connection"""
     return connect(
         port=ENV["DB_PORT"],
         dbname=ENV["DB_NAME"],

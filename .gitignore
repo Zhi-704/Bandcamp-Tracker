@@ -28,4 +28,3 @@ __pycache__/
 
 # Relevant files
 !requirements.txt
-!local_requirements.txt

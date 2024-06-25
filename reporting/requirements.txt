@@ -1,4 +1,4 @@
 python-dotenv
 boto3
-psycopg[binary]
+psycopg
 pytest

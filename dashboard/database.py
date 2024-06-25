@@ -269,25 +269,6 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def get_all_tag_names(_conn: Connection) -> list[str]:
-    """Returns all tag names."""
-
-    print("Getting tag names...")
-
-    query = """
-        SELECT T.name
-        FROM tag as T
-        ;
-        """
-
-    with _conn.cursor() as cur:
-        cur.execute(
-            query)
-        data = cur.fetchall()
-
-    return pd.DataFrame(data)
-
-
 @st.cache_data(ttl="1hr")
 def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[str]):
     """Returns sales data only for passed artists."""

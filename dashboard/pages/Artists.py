@@ -10,6 +10,7 @@ def show_artists():
     st.title("Artists")
     conn = get_connection()
     pop_artists = get_popular_artists(conn)
+    st.header("Top Artists")
     st.altair_chart(get_most_popular_artists_chart(
         pop_artists), use_container_width=True)
 

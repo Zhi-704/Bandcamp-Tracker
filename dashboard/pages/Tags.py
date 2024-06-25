@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from database import get_connection, get_tag_sales_by_tag, get_all_tag_names, get_sales_by_tag
+from database import get_connection, get_tag_sales_by_tag, get_sales_by_tag, get_all_tags
 from charts import get_tag_sales_line_graph, get_most_popular_tags_chart
 
 
@@ -10,15 +10,16 @@ def show_tags():
     st.title("Tags")
     conn = get_connection()
 
-    all_tags = get_all_tag_names(conn)
+    all_tags = get_all_tags(conn)
     tags = get_sales_by_tag(conn)
 
     st.subheader("Top Tags")
     st.altair_chart(get_most_popular_tags_chart(
         tags), use_container_width=True, )
 
+    st.subheader("Tag popularity over time")
     chosen_tag = st.selectbox(
-        "Choose which tag you would like to see", all_tags)
+        "Choose which tag you would like to see...", all_tags)
 
     chosen_tag_data = get_tag_sales_by_tag(conn, chosen_tag)
     chosen_tag_data

@@ -28,7 +28,8 @@ if __name__ == "__main__":
     st.page_link("./Home.py", label="Home")
 
     conn = get_connection()
-
+    email = None
+    tags = None
     st.write(
         "PDF reports: daily summaries of purchases on bandcamp as a PDF emailed to you")
     st.write("Notifications: ")
@@ -51,22 +52,22 @@ if __name__ == "__main__":
 
         if notifications:
             tags = st.multiselect(
-                "Choose which tag(s) you would like to subscribe to",
+                "Choose which tag(s) you would like to subscribe to...",
                 get_all_tags(conn),
                 placeholder="Select tag...")
             if not tags:
                 st.error("Missing field - you must choose at least one tag")
         st.form_submit_button()
 
-    if email and len(tags) == 1:
-        st.write(f"You are now subscribed to the {tags[0]} tag")
-        # add similar message as above for subscribing to multiple tags
+    if email and tags:
+        st.write(f"You are now subscribed to the {tags} tag(s)")
 
     if pdf and name:
         with conn.cursor() as cur:
             cur.execute(
                 """INSERT INTO subscriber (email, name) VALUES (%s, %s)""", (email, name))
         conn.commit()
+        st.write("You are now subscribed to receive daily PDF reports")
 
     sns_client = boto3.client(
         'sns',
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     topics = response["Topics"]
     topic_arns = [topic["TopicArn"] for topic in topics]
 
-    if notifications and tags:
+    if notifications and tags and email:
         for tag in tags:
             tag = tag.replace(" ", "-")
             if f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}' not in topic_arns:
@@ -90,4 +91,3 @@ if __name__ == "__main__":
                 topic_arn = f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
                     tag}'
                 create_subscription('email', email, topic_arn)
-# add dash to topics with spaces

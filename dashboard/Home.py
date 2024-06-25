@@ -7,6 +7,7 @@ import streamlit as st
 import database
 import charts
 
+
 if __name__ == "__main__":
 
     load_dotenv()

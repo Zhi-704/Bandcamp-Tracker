@@ -6,7 +6,8 @@ import streamlit as st
 from database import get_connection, get_sales_by_country
 from charts import create_choropleth_map
 
-if __name__ == "__main__":
+
+def show_locations():
 
     conn = get_connection()
     countries = get_sales_by_country(conn)

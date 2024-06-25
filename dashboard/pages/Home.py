@@ -3,18 +3,18 @@
 
 from dotenv import load_dotenv
 import streamlit as st
-
 import database
 import charts
 
-if __name__ == "__main__":
+
+def show_home():
 
     load_dotenv()
 
     conn = database.get_connection()
 
     st.title("Bandcamp sales analysis")
-    album_titles = database.get_all_album_purchase_titles(conn)
+    album_titles = database.get_all_album_titles(conn)
 
     tracks = database.get_popular_tracks(conn)
     albums = database.get_popular_albums(conn)

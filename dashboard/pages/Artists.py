@@ -5,7 +5,8 @@ import streamlit as st
 from database import get_connection, get_popular_artists, get_all_artists, get_sales, get_sales_for_chosen_artists
 from charts import get_artist_album_sales_bar_chart, get_artist_track_sales_bar_chart, get_most_popular_artists_chart
 
-if __name__ == "__main__":
+
+def show_artists():
 
     conn = get_connection()
     pop_artists = get_popular_artists(conn)

@@ -5,7 +5,8 @@ import streamlit as st
 
 from database import get_all_tags, get_connection
 
-if __name__ == "__main__":
+
+def show_subscriptions():
 
     st.page_link("./Home.py", label="Home")
 

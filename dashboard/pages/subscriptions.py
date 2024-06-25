@@ -17,7 +17,7 @@ def create_subscription(protocol, endpoint, arn):
 
 
 def create_topic(topic_name: str):
-    """creates an sns topic"""
+    """Creates an sns topic"""
     sns_client.create_topic(
         Name=f"c11-bandcamp-{topic_name}",
     )

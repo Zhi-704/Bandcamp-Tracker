@@ -24,7 +24,7 @@ def show_home():
     st.altair_chart(charts.get_most_copies_sold_chart(
         tracks), use_container_width=True)
     st.subheader("Top Albums")
-    st.write("Click on the bar to be taken to the relavant page on Bandcamp")
+    st.write("Click on the bar to be taken to the relevant page on Bandcamp")
 
     st.altair_chart(charts.get_most_copies_sold_chart(
         albums), use_container_width=True)

@@ -101,3 +101,15 @@ ORDER BY total_sales_count DESC LIMIT 5;""", (country,))
         f"{i+1}. {track}, {value} purchases" for i, (track, value) in enumerate(result)]
 
     return formatted_result
+
+
+def get_top_5_metrics_in_top_5_countries(cur: object, countries: list[tuple]) -> list[list]:
+    country_metrics = []
+    for country in countries:
+        country_info = []
+        country_info.append(get_top_5_artists_volume_specific(cur, country))
+        country_info.append(get_top_5_genres_volume_specific(cur, country))
+        country_info.append(get_top_5_tracks_volume_specific(cur, country))
+        country_metrics.append(country_info)
+
+    return country_metrics

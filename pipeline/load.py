@@ -203,7 +203,8 @@ def insert_album_sale(cursor: DBCursor, album_sale: Dict[str, Any]) -> None:
         cursor, album_sale["item_description"], artist_id, album_sale["url"]
     )
     for tag in album_sale["album_tags"]:
-        get_or_insert_tags(cursor, tag, album_id)
+        if tag:
+            get_or_insert_tags(cursor, tag, album_id)
 
     insert_album_or_track_purchase(
         cursor,
@@ -238,7 +239,8 @@ def insert_track_sale(cursor: DBCursor, track_sale: Dict[str, Any]) -> None:
     )
 
     for tag in track_sale["track_tags"]:
-        get_or_insert_tags(cursor, tag, track_id=track_id)
+        if tag:
+            get_or_insert_tags(cursor, tag, track_id=track_id)
 
     insert_album_or_track_purchase(
         cursor,
@@ -269,7 +271,8 @@ def insert_single_sale(cursor: DBCursor, single_sale: Dict[str, Any]) -> None:
     )
 
     for tag in single_sale["track_tags"]:
-        get_or_insert_tags(cursor, tag, track_id=track_id)
+        if tag:
+            get_or_insert_tags(cursor, tag, track_id=track_id)
 
     insert_album_or_track_purchase(
         cursor,

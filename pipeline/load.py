@@ -60,7 +60,8 @@ def get_or_insert_country(cursor: DBCursor, country_name: str) -> int:
     otherwise gets the country_id from the table."""
 
     cursor.execute(
-        "SELECT country_id FROM country WHERE country.name = %s", (country_name,)
+        "SELECT country_id FROM country WHERE country.name = %s", (
+            country_name,)
     )
     country_id = cursor.fetchone()
 
@@ -80,9 +81,8 @@ def get_or_insert_album(
     otherwise gets the album_id from the table."""
 
     cursor.execute(
-        "SELECT album_id FROM album WHERE album.title = %s\
-            AND album.artist_id = %s AND album.url = %s",
-        (album_title, artist_id, album_url),
+        "SELECT album_id FROM album WHERE album.title = %s AND album.url = %s",
+        (album_title, album_url),
     )
     album_id = cursor.fetchone()
 

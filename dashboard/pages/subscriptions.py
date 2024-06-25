@@ -18,7 +18,7 @@ def create_subscription(protocol, endpoint, topic_arn):
 
 def create_topic(topic_name: str):
     response = sns_client.create_topic(
-        Name=f"c11-bandcamp-{topic_name}-tag",
+        Name=f"c11-bandcamp-{topic_name}",
     )
 
 
@@ -80,12 +80,14 @@ if __name__ == "__main__":
 
     if notifications and tags:
         for tag in tags:
-            if f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}-tag' not in topic_arns:
+            tag = tag.replace(" ", "-")
+            if f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}' not in topic_arns:
                 create_topic(tag)
                 create_subscription(
-                    'email', email, f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}-tag')
+                    'email', email, f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}')
 
             else:
                 topic_arn = f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
-                    tag}-tag'
+                    tag}'
                 create_subscription('email', email, topic_arn)
+# add dash to topics with spaces

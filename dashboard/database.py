@@ -28,13 +28,13 @@ def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular tracks...")
 
     query = """
-        SELECT T.title, A.name, COUNT(*) AS copies_sold
+        SELECT T.title, A.name, COUNT(*) AS copies_sold, T.url as url
         FROM track_purchase AS PT
         JOIN track AS T
         USING(track_id)
         JOIN artist as A
         USING(artist_id)
-        GROUP BY T.title, A.name
+        GROUP BY T.title, A.name, T.url
         ORDER BY copies_sold DESC
         LIMIT %s
         ;
@@ -54,13 +54,13 @@ def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular albums...")
 
     query = """
-        SELECT AB.title, AT.name, COUNT(*) AS copies_sold
+        SELECT AB.title, AT.name, COUNT(*) AS copies_sold, AB.url as url
         FROM album_purchase AS PA
         JOIN album AS AB
         USING(album_id)
         JOIN artist as AT
         USING(artist_id)
-        GROUP BY AB.title, AT.name
+        GROUP BY AB.title, AT.name, AB.url
         ORDER BY copies_sold DESC
         LIMIT %s
         ;

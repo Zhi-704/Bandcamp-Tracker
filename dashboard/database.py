@@ -170,7 +170,7 @@ def get_all_tags(_conn: Connection) -> list:
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_by_country(_conn: Connection) -> list(dict):
+def get_sales_by_country(_conn: Connection) -> list[dict]:
     """Returns the top n countries by sales."""
 
     print("Counting sales by country...")
@@ -260,7 +260,7 @@ def get_sales(_conn: Connection) -> pd.DataFrame:
 
 
 @st.cache_data(ttl="1hr")
-def get_all_tag_names(_conn: Connection) -> list(str):
+def get_all_tag_names(_conn: Connection) -> list[str]:
     """Returns all tag names."""
 
     print("Getting tag names...")

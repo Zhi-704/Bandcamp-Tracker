@@ -30,11 +30,14 @@ if __name__ == "__main__":
     conn = get_connection()
     email = None
     tags = None
+    st.write("We offer two different subscriptions:")
     st.write(
-        "PDF reports: daily summaries of purchases on bandcamp as a PDF emailed to you")
-    st.write("Notifications: ")
+        "1. PDF reports - daily summaries of purchases on Bandcamp as a PDF emailed to you")
+    st.write(
+        "2. Notifications - get notified of what's trending for your favourite tags!")
 
-    pdf = st.checkbox("I would like to sign up for daily PDF reports")
+    pdf = st.checkbox(
+        "I would like to sign up for daily PDF reports")
     notifications = st.checkbox(
         "I would like to sign up for notifications for specific tags")
 

@@ -16,6 +16,8 @@ __pycache__/
 # Project Data
 *.csv
 *.json
+*.ipynb
+*.txt
 
 # Terraform
 *.terraform
@@ -24,5 +26,5 @@ __pycache__/
 *.tfstate.backup
 *.tfvars
 
-# IDE (VSCode)
-.vscode/
+# Relevant files
+!requirements.txt

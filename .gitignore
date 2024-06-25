@@ -17,6 +17,7 @@ __pycache__/
 *.csv
 *.json
 *.ipynb
+*.txt
 
 # Terraform
 *.terraform
@@ -25,6 +26,6 @@ __pycache__/
 *.tfstate.backup
 *.tfvars
 
-# IDE (VSCode)
-.vscode/!requirements.txt
+# Relevant files
+!requirements.txt
 !local_requirements.txt

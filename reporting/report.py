@@ -1,6 +1,8 @@
+'''Script used for notifying all subscribed users of trending items in their subscribed tags.'''
+
 from os import environ as ENV
-from dotenv import load_dotenv
 import logging
+from dotenv import load_dotenv
 
 from psycopg import connect, Connection
 from psycopg.rows import dict_row
@@ -45,12 +47,11 @@ def get_topics_arns_from_aws(sns_client: client) -> list[dict]:
     return None
 
 
-def get_tag_arn(tag: str, arn_list: list[dict]) -> list[str]:
-    '''Get the arn of a specific tag if it exists'''
-    return [arn['TopicArn'] for arn in arn_list if tag in arn['TopicArn']]
-
-
-def get_sales_data_of_tag(conn: Connection, item_type: str, tag: str, sales_limit: int = TRENDING_THRESHOLD, sales_timeframe: str = TRENDING_TIMEFRAME) -> list[dict]:
+def get_sales_data_of_tag(conn: Connection,
+                          item_type: str,
+                          tag: str,
+                          sales_limit: int = TRENDING_THRESHOLD,
+                          sales_timeframe: str = TRENDING_TIMEFRAME) -> list[dict]:
     '''Gets trending sales data'''
 
     query = f'''
@@ -93,6 +94,8 @@ ORDER BY copies_sold DESC
 
 def extract_tag_name(topic_arn: str) -> str:
     '''Extracts the tag name from the topic arn'''
+    if topic_arn is None or not isinstance(topic_arn, str):
+        return None
     raw_tag = topic_arn.split(':')[-1]
     tag_parts = raw_tag.split('-')[2:]
     return ' '.join(tag_parts)
@@ -106,12 +109,17 @@ def configure_log() -> None:
     )
 
 
-def publish_list_to_topic(sns_client: client, topic_arn: str,  tag: str, trending_data: list[dict]) -> dict:
+def publish_list_to_topic(sns_client: client,
+                          topic_arn: str,
+                          tag: str,
+                          trending_data: list[dict]) -> dict:
     '''Publishes trending items for a tag to a topic, which sends an email to all subscribers'''
 
     subject = f"What's trending for {tag}?"
     message = f"These items are trending for the tag {tag}!\n\n"
     for item in trending_data:
+        if not all(key in item for key in ['title', 'band', 'type', 'url']):
+            continue
         item_name = item['title']
         item_author = item['band']
         item_type = item['type'].title()
@@ -153,6 +161,7 @@ def get_trending_items(conn: Connection, item_type: str, tag_name: str) -> list[
 
 
 def notification_system() -> None:
+    '''Notifies all subscribed users of trending items in their subscribed tags'''
     conn = get_connection()
     sns = get_sns_client()
 
@@ -172,11 +181,12 @@ def notification_system() -> None:
             logging.info("No trending items found for %s \n",
                          tag_dict['Tag'])
             continue
-        elif len(trending_data) >= 1:
-            publish_list_to_topic(
+        if len(trending_data) >= 1:
+            response = publish_list_to_topic(
                 sns, tag_dict['TopicArn'], tag_dict['Tag'].title(), trending_data)
-            logging.info("Email sent for %s \n",
-                         tag_dict['Tag'])
+            if response:
+                logging.info("Email sent for %s \n",
+                             tag_dict['Tag'])
 
     conn.close()
 

@@ -8,7 +8,7 @@ from database import get_all_tags, get_connection
 
 
 def create_subscription(protocol, endpoint, arn):
-    """adds a subscription to a topic"""
+    """Adds a subscription to a topic"""
     return sns_client.subscribe(
         TopicArn=arn,
         Protocol=protocol,

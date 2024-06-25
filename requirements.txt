@@ -15,4 +15,5 @@ pytest-asyncio
 pytest-cov
 requests
 streamlit
+streamlit-navigation-bar
 watchdog

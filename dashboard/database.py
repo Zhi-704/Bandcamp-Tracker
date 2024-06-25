@@ -81,19 +81,19 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
 
     query = """
             SELECT A.artist_id, A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales, COUNT(DISTINCT AP.album_purchase_id) + COUNT(DISTINCT TP.track_purchase_id) AS total_sales
-            FROM 
+            FROM
                 artist AS A
-            LEFT JOIN 
+            LEFT JOIN
                 album AS AB ON A.artist_id = AB.artist_id
-            LEFT JOIN 
+            LEFT JOIN
                 album_purchase AS AP ON AB.album_id = AP.album_id
-            LEFT JOIN 
+            LEFT JOIN
                 track AS T ON A.artist_id = T.artist_id
-            LEFT JOIN 
+            LEFT JOIN
                 track_purchase AS TP ON T.track_id = TP.track_id
-            GROUP BY 
+            GROUP BY
                 A.artist_id, A.name
-            ORDER BY 
+            ORDER BY
                 total_sales DESC
             LIMIT %s;
         ;
@@ -201,10 +201,10 @@ def get_all_album_titles(_conn: Connection):
     print("Getting album titles...")
 
     query = """
-        SELECT title
-        FROM album
-        ;
-        """
+            SELECT title
+            FROM album
+            ;
+            """
 
     with _conn.cursor() as cur:
         cur.execute(query)

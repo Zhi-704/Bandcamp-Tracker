@@ -3,22 +3,21 @@
 from os import environ as ENV
 import streamlit as st
 import boto3
-from dotenv import load_dotenv
 from database import get_all_tags, get_connection
 
 
-def create_subscription(protocol, endpoint, arn):
+def create_subscription(protocol, endpoint, arn, client):
     """Adds a subscription to a topic"""
-    return sns_client.subscribe(
+    return client.subscribe(
         TopicArn=arn,
         Protocol=protocol,
         Endpoint=endpoint
     )
 
 
-def create_topic(topic_name: str):
+def create_topic(client, topic_name: str):
     """Creates an sns topic"""
-    sns_client.create_topic(
+    client.create_topic(
         Name=f"c11-bandcamp-{topic_name}",
     )
 
@@ -30,10 +29,8 @@ def get_topics(client):
     return [topic["TopicArn"] for topic in topics]
 
 
-if __name__ == "__main__":
-    load_dotenv()
-
-    st.page_link("./Home.py", label="Home")
+def show_subscriptions():
+    st.title("Subscriptions")
 
     conn = get_connection()
 
@@ -86,14 +83,14 @@ if __name__ == "__main__":
             for tag in tags:
                 tag = tag.replace(" ", "-")
                 if f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}' not in topic_arns:
-                    create_topic(tag)
+                    create_topic(sns_client, tag)
                     create_subscription(
-                        'email', email, f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}')
+                        'email', email, f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}', sns_client)
 
                 else:
                     topic_arn = f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
                         tag}'
-                    create_subscription('email', email, topic_arn)
+                    create_subscription('email', email, topic_arn, sns_client)
 
         if pdf and name and email:
             with conn.cursor() as cur:

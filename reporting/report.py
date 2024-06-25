@@ -1,6 +1,5 @@
 from os import environ as ENV
 from dotenv import load_dotenv
-import pandas as pd
 import logging
 
 from psycopg import connect, Connection
@@ -9,7 +8,7 @@ from boto3 import client
 
 
 TRENDING_THRESHOLD = 100
-FILTER_TOPICS_BY = "c11-apollo-"
+FILTER_TOPICS_BY = "c11-bandcamp-"
 TRENDING_TIMEFRAME = '8 hours'
 
 
@@ -96,7 +95,7 @@ def extract_tag_name(topic_arn: str) -> str:
     '''Extracts the tag name from the topic arn'''
     raw_tag = topic_arn.split(':')[-1]
     tag_parts = raw_tag.split('-')[2:]
-    return ' '.join(tag_parts).lower()
+    return ' '.join(tag_parts)
 
 
 def configure_log() -> None:
@@ -142,7 +141,7 @@ def add_tags_to_dictionary(tags_list: list[dict]) -> list[dict]:
 def get_trending_items(conn: Connection, item_type: str, tag_name: str) -> list[dict]:
     '''Grabs trending data for a specific item type and adds its type to the dictionary'''
     trending_items = get_sales_data_of_tag(
-        conn, item_type, tag_name, 3)
+        conn, item_type, tag_name)
 
     logging.info("Trending %s (%s) : %s", item_type,
                  tag_name, trending_items)
@@ -161,6 +160,7 @@ def notification_system() -> None:
     tags = filter_topics(FILTER_TOPICS_BY, topics)
 
     tags_list = add_tags_to_dictionary(tags)
+    logging.info("\nTags in AWS: %s\n", [tag['Tag'] for tag in tags_list])
 
     for tag_dict in tags_list:
 

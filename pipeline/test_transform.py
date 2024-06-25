@@ -1,6 +1,6 @@
 """Tests for transform functions."""
 
-from transform import convert_unix_to_datetime, clean_data, transform_sales_data
+from transform import convert_unix_to_datetime, clean_data, transform_sales_data, clean_tags
 import pytest
 
 
@@ -119,8 +119,7 @@ def test_transform_sales_data_valid():
                 "irish rap",
                 "punk",
                 "rap",
-                "Belfast",
-            ],
+                "Belfast"]
         }
     ]
 
@@ -140,10 +139,35 @@ def test_transform_sales_data_valid():
                 "irish rap",
                 "punk",
                 "rap",
-                "Belfast",
+                "belfast",
             ],
+            "track_tags": [],
             "artist_url": "https://example_artist.bandcamp.com",
         }
     ]
 
     assert transform_sales_data(input_data) == expected_output
+
+
+def test_clean_tags_normal_case():
+    tags = [" TagOne ", "TAGTWO", "tagthree "]
+    expected = ["tagone", "tagtwo", "tagthree"]
+    assert clean_tags(tags) == expected
+
+
+def test_clean_tags_empty_list():
+    tags = []
+    expected = []
+    assert clean_tags(tags) == expected
+
+
+def test_clean_tags_none():
+    tags = None
+    expected = []
+    assert clean_tags(tags) == expected
+
+
+def test_clean_tags_whitespace_only():
+    tags = [" ", "   ", " \t "]
+    expected = ["", "", ""]
+    assert clean_tags(tags) == expected

@@ -7,8 +7,7 @@ from database import get_all_tags, get_connection
 
 
 def show_subscriptions():
-
-    st.page_link("./Home.py", label="Home")
+    st.title("Subscriptions")
 
     email = ""
     conn = get_connection()

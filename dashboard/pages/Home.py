@@ -1,4 +1,4 @@
-"""Main page of the dashboard."""
+"""Home page of the dashboard."""
 
 
 from dotenv import load_dotenv
@@ -13,7 +13,9 @@ def show_home():
 
     conn = database.get_connection()
 
-    st.title("Bandcamp sales analysis")
+    st.title("Home")
+    st.header("Welcome to the Bandcamp analysis tracker!")
+    st.write("Here you'll find insights into Bandcamp sales and you can also subscribe to receive email notifications!")
     album_titles = database.get_all_album_titles(conn)
 
     tracks = database.get_popular_tracks(conn)
@@ -29,7 +31,3 @@ def show_home():
 
     chosen_album = st.selectbox(
         "Choose which album you would like to see", album_titles)
-
-    chosen_album_data = database.get_album_sales_by_album(conn, chosen_album)
-    chosen_album_data
-    st.altair_chart(charts.get_albums_sales_line_graph(chosen_album_data))

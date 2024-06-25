@@ -7,7 +7,7 @@ from charts import get_artist_album_sales_bar_chart, get_artist_track_sales_bar_
 
 
 def show_artists():
-
+    st.title("Artists")
     conn = get_connection()
     pop_artists = get_popular_artists(conn)
     st.altair_chart(get_most_popular_artists_chart(

@@ -7,6 +7,7 @@ from charts import get_tag_sales_line_graph
 
 
 def show_tags():
+    st.title("Tags")
     conn = get_connection()
 
     all_tags = get_all_tag_names(conn)

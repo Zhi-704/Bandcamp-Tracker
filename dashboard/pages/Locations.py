@@ -8,7 +8,7 @@ from charts import create_choropleth_map
 
 
 def show_locations():
-
+    st.title("Locations")
     conn = get_connection()
     countries = get_sales_by_country(conn)
     st.plotly_chart(create_choropleth_map(countries))

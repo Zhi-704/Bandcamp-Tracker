@@ -1,4 +1,4 @@
-"""Main page of the dashboard."""
+"""Navigation for dashboard."""
 
 
 import streamlit as st

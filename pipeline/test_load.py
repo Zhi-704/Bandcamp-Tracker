@@ -115,9 +115,8 @@ def test_get_or_insert_album_existing(mock_get_cursor):
     album_id = get_or_insert_album(mock_cursor, "album_title", 1, "album_url")
     assert album_id == 1
     mock_cursor.execute.assert_called_with(
-        "SELECT album_id FROM album WHERE album.title = %s\
-            AND album.artist_id = %s AND album.url = %s",
-        ("album_title", 1, "album_url"),
+        "SELECT album_id FROM album WHERE album.title = %s AND album.url = %s",
+        ("album_title", "album_url"),
     )
 
 

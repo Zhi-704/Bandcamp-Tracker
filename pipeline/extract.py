@@ -162,7 +162,7 @@ async def scrape_album_url(session: aiohttp.ClientSession, webpage_url: str, tim
     return None
 
 
-async def scrape_tags(session: aiohttp.ClientSession, webpage_url: str, timeout: int) -> list:
+async def scrape_tags(session: aiohttp.ClientSession, webpage_url: str, timeout: int) -> list[str]:
     '''Scrapes tags of a specified webpage url'''
     html = await fetch_webpage(session, webpage_url, timeout)
     if html is None:
@@ -190,7 +190,8 @@ def get_sales_data() -> list[dict]:
     logging.info("Sales data gathered")
     if sales_data is not None:
         logging.info("Scraping begun")
-        logging.info("Sales List Length:", len(data['feed_data']['events']))
+        logging.info("Sales List Length: %s", len(
+            sales_data['feed_data']['events']))
         list_of_albums_tracks = asyncio.run(
             extract_list_of_items(sales_data['feed_data']['events']))
         logging.info("Scraping ended")

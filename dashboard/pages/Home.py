@@ -19,7 +19,7 @@ def show_home():
     tracks = database.get_popular_tracks(conn)
     albums = database.get_popular_albums(conn)
     st.subheader("Top Tracks")
-    st.write("Click on the bar to be taken to the relavant page on Bandcamp")
+    st.write("Click on the bar to be taken to the relevant page on Bandcamp")
 
     st.altair_chart(charts.get_most_copies_sold_chart(
         tracks), use_container_width=True)

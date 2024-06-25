@@ -24,7 +24,7 @@ def create_topic(topic_name: str):
 
 
 def get_topics(client):
-    """returns a list of all sns topics"""
+    """Returns a list of all sns topics"""
     response = client.list_topics()
     topics = response["Topics"]
     return [topic["TopicArn"] for topic in topics]

@@ -21,12 +21,9 @@ def show_artists():
     chosen_artists_data = get_sales_for_chosen_artists(
         all_sales, chosen_artists)
 
-    col = st.columns(2)
     if chosen_artists:
-        with col[0]:
-            st.altair_chart(
-                get_artist_album_sales_bar_chart(chosen_artists_data))
+        st.altair_chart(
+            get_artist_album_sales_bar_chart(chosen_artists_data), use_container_width=True)
 
-        with col[1]:
-            st.altair_chart(
-                get_artist_track_sales_bar_chart(chosen_artists_data))
+        st.altair_chart(
+            get_artist_track_sales_bar_chart(chosen_artists_data), use_container_width=True)

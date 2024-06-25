@@ -6,6 +6,7 @@ boto3
 logging
 pandas
 plotly
+psycopg
 psycopg2-binary
 python-dotenv
 pylint

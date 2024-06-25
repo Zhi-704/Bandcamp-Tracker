@@ -3,7 +3,6 @@
 from os import environ as ENV
 import streamlit as st
 import boto3
-from dotenv import load_dotenv
 from database import get_all_tags, get_connection
 
 

@@ -7,6 +7,7 @@ from charts import get_tag_sales_line_graph, get_most_popular_tags_chart
 
 
 def show_tags():
+    """Main function for tags page."""
     st.title("Tags")
     conn = get_connection()
 
@@ -22,5 +23,4 @@ def show_tags():
         "Choose which tag you would like to see...", all_tags)
 
     chosen_tag_data = get_tag_sales_by_tag(conn, chosen_tag)
-    chosen_tag_data
     st.altair_chart(get_tag_sales_line_graph(chosen_tag_data))

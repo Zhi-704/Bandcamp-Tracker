@@ -8,6 +8,7 @@ from charts import create_choropleth_map
 
 
 def show_locations():
+    """Main function for Locations page."""
     st.title("Locations")
     st.write("Hover to see the number of sales made in each country")
     conn = get_connection()

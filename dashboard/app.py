@@ -8,6 +8,7 @@ import pages as pg
 
 if __name__ == "__main__":
     st.set_page_config(initial_sidebar_state="collapsed")
+    load_dotenv()
     pages = ["Home", "Artists", "Locations", "Subscriptions", "Tags"]
     options = {
         "show_menu": True,

@@ -8,8 +8,7 @@ import charts
 
 
 def show_home():
-
-    load_dotenv()
+    """Main function for Home page."""
 
     conn = database.get_connection()
 

@@ -1,25 +1,34 @@
 """A dashboard page that lets you sign up for notifications."""
-from database import get_all_tags, get_connection
+
+from os import environ as ENV
 import streamlit as st
 import boto3
-from os import environ as ENV
 from dotenv import load_dotenv
+from database import get_all_tags, get_connection
 
 
 # Function to create a subscription
-def create_subscription(protocol, endpoint, topic_arn):
-    response = sns_client.subscribe(
-        TopicArn=topic_arn,
+def create_subscription(protocol, endpoint, arn):
+    """adds a subscription to a topic"""
+    return sns_client.subscribe(
+        TopicArn=arn,
         Protocol=protocol,
         Endpoint=endpoint
     )
-    return response
 
 
 def create_topic(topic_name: str):
-    response = sns_client.create_topic(
+    """creates an sns topic"""
+    sns_client.create_topic(
         Name=f"c11-bandcamp-{topic_name}",
     )
+
+
+def get_topics(client):
+    """returns a list of all sns topics"""
+    response = client.list_topics()
+    topics = response["Topics"]
+    return [topic["TopicArn"] for topic in topics]
 
 
 if __name__ == "__main__":
@@ -70,9 +79,7 @@ if __name__ == "__main__":
         aws_access_key_id=ENV["ACCESS_KEY"],
         aws_secret_access_key=ENV["SECRET_ACCESS_KEY"]
     )
-    response = sns_client.list_topics()
-    topics = response["Topics"]
-    topic_arns = [topic["TopicArn"] for topic in topics]
+    topic_arns = get_topics(sns_client)
 
     if submitted:
         if notifications and email and tags:

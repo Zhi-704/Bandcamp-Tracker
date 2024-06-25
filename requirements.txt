@@ -1,6 +1,5 @@
 aiohttp
 altair
-asyncio
 bs4
 boto3
 logging

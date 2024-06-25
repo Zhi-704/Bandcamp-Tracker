@@ -62,7 +62,10 @@ WHERE c.name = %s
 GROUP BY a.name
 ORDER BY total_sales_count DESC LIMIT 5;""", (country,))
     result = cur.fetchall()
-    return result
+    formatted_result = [
+        f"{i+1}. {artist}, {value} purchases" for i, (artist, value) in enumerate(result)]
+
+    return formatted_result
 
 
 def get_top_5_genres_volume_specific(cur: object, country: str) -> list[tuple]:
@@ -78,7 +81,10 @@ WHERE c.name = %s
 GROUP BY t.name
 ORDER BY total_sales_count DESC LIMIT 5;""", (country,))
     result = cur.fetchall()
-    return result
+    formatted_result = [
+        f"{i+1}. {genre}, {value} purchases" for i, (genre, value) in enumerate(result)]
+
+    return formatted_result
 
 
 def get_top_5_tracks_volume_specific(cur: object, country: str) -> list[tuple]:
@@ -91,4 +97,7 @@ WHERE c.name = %s
 GROUP BY t.title
 ORDER BY total_sales_count DESC LIMIT 5;""", (country,))
     result = cur.fetchall()
-    return result
+    formatted_result = [
+        f"{i+1}. {track}, {value} purchases" for i, (track, value) in enumerate(result)]
+
+    return formatted_result

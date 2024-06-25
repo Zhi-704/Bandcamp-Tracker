@@ -1,6 +1,5 @@
 '''Testing suite for report.py'''
 
-from psycopg import connect, Connection
 from unittest.mock import patch, MagicMock
 import pytest
 from report import (

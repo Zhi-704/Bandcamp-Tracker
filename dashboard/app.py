@@ -9,7 +9,11 @@ import pages as pg
 if __name__ == "__main__":
     st.set_page_config(initial_sidebar_state="collapsed")
     pages = ["Home", "Artists", "Locations", "Subscriptions", "Tags"]
-    page = st_navbar(pages)
+    options = {
+        "show_menu": False,
+        "show_sidebar": False,
+    }
+    page = st_navbar(pages, options=options)
 
     functions = {
         "Home": pg.show_home,

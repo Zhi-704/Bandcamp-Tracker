@@ -8,7 +8,7 @@ from database import get_all_tags, get_connection
 
 
 def create_subscription(protocol, endpoint, arn):
-    """adds a subscription to a topic"""
+    """Adds a subscription to a topic"""
     return sns_client.subscribe(
         TopicArn=arn,
         Protocol=protocol,
@@ -17,14 +17,14 @@ def create_subscription(protocol, endpoint, arn):
 
 
 def create_topic(topic_name: str):
-    """creates an sns topic"""
+    """Creates an sns topic"""
     sns_client.create_topic(
         Name=f"c11-bandcamp-{topic_name}",
     )
 
 
 def get_topics(client):
-    """returns a list of all sns topics"""
+    """Returns a list of all sns topics"""
     response = client.list_topics()
     topics = response["Topics"]
     return [topic["TopicArn"] for topic in topics]

@@ -1,6 +1,6 @@
 """Navigation for dashboard."""
 
-
+from dotenv import load_dotenv
 import streamlit as st
 from streamlit_navigation_bar import st_navbar
 import pages as pg

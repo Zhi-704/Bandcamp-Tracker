@@ -1,7 +1,6 @@
 """Home page of the dashboard."""
 
 
-from dotenv import load_dotenv
 import streamlit as st
 import database
 import charts

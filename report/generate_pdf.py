@@ -10,7 +10,7 @@ from psycopg2 import connect
 from dotenv import load_dotenv
 from xhtml2pdf import pisa
 from tabulate import tabulate
-from queries import (get_top_5_artists_world_sales, get_top_5_genres_world_sales, get_top_5_tracks_world_sales,
+from queries import (get_top_5_artists_world_sales, get_top_5_tags_world_sales, get_top_5_tracks_world_sales,
                      get_top_5_countries_sales, get_top_5_metrics_in_top_5_countries)
 
 
@@ -61,20 +61,28 @@ def create_html_tables(countries: list[str], country_infos: list[list]):
 if __name__ == "__main__":
     load_dotenv()
     connection = get_connection()
+    print("1")
     cursor = get_cursor(connection)
-
+    print("2")
     top_5_artists = get_top_5_artists_world_sales(cursor)
-    top_5_genres = get_top_5_genres_world_sales(cursor)
+    print("3")
+    top_5_tags = get_top_5_tags_world_sales(cursor)
+    print("4")
     top_5_tracks = get_top_5_tracks_world_sales(cursor)
+    print("5")
     top_5_countries = get_top_5_countries_sales(cursor)
+    print("6")
     countries_list = get_top_5_countries(top_5_countries)
+    print("7")
     top_5_country_metrics = get_top_5_metrics_in_top_5_countries(
         cursor, countries_list)
+    print("8")
 
     cursor.close()
     connection.close()
-
+    print("9")
     html_tables = create_html_tables(countries_list, top_5_country_metrics)
+    print("10")
 
     html_report = f"""
 <!DOCTYPE html>
@@ -82,10 +90,10 @@ if __name__ == "__main__":
 <head>
     <style>
         h1 {{ text-align: center; }}
-        table, th, td {{ border: none; border-collapse: collapse; padding: 2px; }}
-        table {{ width: 100%; margin: 5px; }}
-        th {{ background-color: #f2f2f2; vertical-align: center }}
-        td {{ vertical-align: top; text-align: center;}}
+        table, th, td {{ border: none; border-collapse: collapse; padding: 2px; text-align: center; }}
+        table {{ width: 100%; margin: 5px 0; }}
+        th {{ background-color: #f2f2f2; }}
+        td {{ vertical-align: top;}}
         caption {{ border: none; text-align: center; font-size: 1.5em; font-weight: bold; margin-top: 0px; margin-bottom: 0px; }}
     </style>
 </head>
@@ -96,5 +104,6 @@ if __name__ == "__main__":
 </body>
 </html>
 """
-
+    print("11")
     convert_html_to_pdf(html_report, ENV["FILENAME"])
+    print("12")

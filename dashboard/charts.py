@@ -34,7 +34,7 @@ def get_most_popular_artists_chart(artists: DataFrame) -> alt.Chart:
 @st.cache_data
 def get_most_popular_tags_chart(tags: DataFrame) -> alt.Chart:
     """Returns a bar chart of popular tags and their sales."""
-
+    print(tags)
     return alt.Chart(tags).mark_bar(color="rgb(60, 154, 170)").encode(
         x=alt.X("name:N", title="Tags", axis=alt.Axis(labelAngle=-45)),
         y=alt.Y("total_sales:Q", title="Sales")

@@ -185,12 +185,18 @@ def get_sales_by_country(_conn: Connection) -> list[dict]:
     print("Counting sales by country...")
 
     query = """
-        SELECT C.name, COUNT(DISTINCT AP.album_purchase_id)+COUNT(DISTINCT TP.track_purchase_id) AS total_sales
-        FROM country AS C
-        LEFT JOIN album_purchase AS AP
-        ON AP.country_id = C.country_id
-        LEFT JOIN track_purchase AS TP
-        ON TP.country_id = C.country_id
+        SELECT C.name as name, SUM(album_table.album_total + track_table.track_total) AS total_sales
+        FROM country C
+        INNER JOIN (
+            SELECT AP.country_id, COUNT(DISTINCT AP.album_purchase_id) album_total
+            FROM album_purchase AP
+            GROUP BY AP.country_id
+        ) album_table ON album_table.country_id = C.country_id
+        INNER JOIN  (
+            SELECT TP.country_id, COUNT(DISTINCT TP.track_purchase_id) track_total
+            FROM track_purchase TP
+            GROUP BY TP.country_id
+        ) track_table ON track_table.country_id = C.country_id
         GROUP BY C.name
         ORDER BY total_sales DESC
         ;

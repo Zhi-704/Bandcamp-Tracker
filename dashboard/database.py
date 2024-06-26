@@ -149,7 +149,7 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
         track_table ON track_table.tag_id = t.tag_id
     GROUP BY t.tag_id
     ORDER BY total_sales DESC
-    LIMIT 5
+    LIMIT %s
     ;
     """
 

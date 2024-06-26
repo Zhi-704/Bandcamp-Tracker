@@ -1,7 +1,0 @@
-psycopg2-binary
-boto3
-python-dotenv
-xhtml2pdf
-altair
-pandas
-tabulate

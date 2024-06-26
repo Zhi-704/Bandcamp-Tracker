@@ -1,5 +1,4 @@
 aiohttp
-asyncio
 bs4
 logging
 psycopg2-binary

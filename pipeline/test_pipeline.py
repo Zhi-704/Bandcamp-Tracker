@@ -44,7 +44,7 @@ def test_etl_pipeline(mock_load_sales_data, mock_transform_sales_data, mock_get_
     mock_get_sales_data.return_value = mock_sales_data
     mock_transform_sales_data.return_value = mock_sales_data
 
-    main()
+    main('foo', 'bar')
 
     mock_get_sales_data.assert_called_once()
     mock_transform_sales_data.assert_called_once_with(mock_sales_data)

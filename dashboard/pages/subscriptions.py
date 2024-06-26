@@ -34,7 +34,7 @@ def show_subscriptions():
 
     conn = get_connection()
 
-    st.write("We offer two different subscriptions:")
+    st.write("We offer two different email subscriptions:")
     st.write(
         "1. PDF reports - daily summaries of purchases on Bandcamp as a PDF emailed to you")
     st.write(

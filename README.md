@@ -21,9 +21,9 @@
 
 ### 📏 Entity-Relationship Diagram
 Waiting for the ERD to be uploaded.
+![ERD Diagram](https://github.com/Zhi-704/c11-apollo-bandcamp-tracker/blob/main/diagrams/ERD.png)
 ### 📐 Architecture Diagram
-Waiting for the AD to be uploaded.
-
+![Architecture Diagram](https://github.com/Zhi-704/c11-apollo-bandcamp-tracker/blob/main/diagrams/Architecture_Diagram.png)
 
 ## ✅ Getting Started
 
@@ -31,7 +31,6 @@ Waiting for the AD to be uploaded.
 The following languages/softwares are required for this project. Things assigned as optional are only required if you desire to host this system on the cloud.
 - Python
 - Bash
-- Terraform (Optional)
 - Docker (Optional)
 
 ### ❗️ Dependencies
@@ -51,17 +50,12 @@ python3 "script.py"
 # Bash
 bash "script.sh"
 
-# Terraform
-terraform init
-terraform apply
-yes
-
 # Docker
 docker build -t "image"
 docker run --env-file .env -t "image: tag"
 ```
 #### **IMPORTANT**
- One thing to note is that the majority of scripts use environment variables. Make sure to create your own .env/.tfvars and fill out all the variables required to run the code successfully. Smaller READMEs will be found in each folder going into more depth on how to use that specific part of the repository.
+ One thing to note is that the majority of scripts use environment variables. Make sure to create your own .env and fill out all the variables required to run the code successfully. Smaller READMEs will be found in each folder going into more depth on how to use that specific part of the repository.
 
 
 ## 🚀 Running the Repository
@@ -97,10 +91,3 @@ Common issues which people face are:
 
 ## © License
 This project is licensed under the alina101, e-lemma, Lasped13, Zhi-704 - see the LICENSE.md file for details.
-
-
-## ❤️ Acknowledgements
-- 🎹 **Bandcamp** at the LMNH for taking care of the plants.
-- 🧡 **Sigma Labs** for giving us this project.
-- 🤖 **Sigma Bot** for helping us with the project.
-- 🎻 **Team Apollo** for creating this.

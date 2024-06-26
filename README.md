@@ -20,6 +20,7 @@
 ## ✏️ Design
 
 ### 📏 Entity-Relationship Diagram
+Waiting for the ERD to be uploaded.
 ![ERD Diagram](https://github.com/Zhi-704/c11-apollo-bandcamp-tracker/blob/main/diagrams/ERD.png)
 ### 📐 Architecture Diagram
 ![Architecture Diagram](https://github.com/Zhi-704/c11-apollo-bandcamp-tracker/blob/main/diagrams/Architecture_Diagram.png)

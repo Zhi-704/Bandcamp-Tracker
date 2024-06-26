@@ -11,6 +11,7 @@ import pandas as pd
 @st.cache_resource
 def get_connection() -> Connection:
     """gets a connection"""
+    print("getting a connection")
     return connect(
         port=ENV["DB_PORT"],
         dbname=ENV["DB_NAME"],

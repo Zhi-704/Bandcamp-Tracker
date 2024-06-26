@@ -180,7 +180,7 @@ def get_all_tags(_conn: Connection) -> list:
 
 @st.cache_data(ttl="1hr")
 def get_sales_by_country(_conn: Connection) -> list[dict]:
-    """Returns the top n countries by sales."""
+    """Returns the sales for each country."""
 
     print("Counting sales by country...")
 

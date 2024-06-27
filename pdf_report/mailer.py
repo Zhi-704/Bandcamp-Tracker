@@ -65,7 +65,8 @@ def get_recipients(connection: DBConnection) -> list[dict]:
         with get_cursor(connection) as cursor:
             cursor.execute("SELECT email, name FROM subscriber")
             rows = cursor.fetchall()
-            recipients = [{"email": row["email"], "name": row["name"]} for row in rows]
+            recipients = [{"email": row["email"], "name": row["name"]}
+                          for row in rows]
     except psycopg2.Error as e:
         logging.error("Error fetching recipients: %s", e)
     finally:
@@ -123,7 +124,8 @@ def send_email(
         )
 
 
-if __name__ == "__main__":
+def send_all_emails() -> None:
+    """Main function to send the PDF attached to an email to all recipients."""
 
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -153,4 +155,9 @@ if __name__ == "__main__":
     for subscriber in subscribers:
         subject = f"Apollo - Daily Report for {
             subscriber['name']} ({today_date})"
-        send_email(ses_client, sender, subscriber["email"], subscriber["name"], subject)
+        send_email(ses_client, sender,
+                   subscriber["email"], subscriber["name"], subject)
+
+
+if __name__ == "__main__":
+    send_all_emails()

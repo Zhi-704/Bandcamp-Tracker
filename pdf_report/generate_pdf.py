@@ -6,12 +6,16 @@ for the data obtained from Bandcamp.
 
 
 from os import environ as ENV
+from io import BytesIO
+from base64 import b64encode
 from psycopg2 import connect
 from dotenv import load_dotenv
+import altair as alt
 from xhtml2pdf import pisa
 from tabulate import tabulate
 from queries import (get_top_5_artists_world_sales, get_top_5_tags_world_sales, get_top_5_tracks_world_sales,
                      get_top_5_countries_sales, get_top_5_metrics_in_top_5_countries)
+from charts import get_top_artists_chart, get_top_tags_chart, get_top_tracks_chart
 
 
 def get_connection() -> object:
@@ -44,7 +48,7 @@ def convert_html_to_pdf(source_html: str, output_filename: str) -> None:
 
 def create_html_tables(countries: list[str], country_infos: list[list]):
     tables = ""
-    headers = ["Top 5 Artists", "Top 5 Tags", "Top 5 Tracks"]
+    headers = ["Artists", "Tags", "Tracks"]
 
     for i, country in enumerate(countries):
         country_table = tabulate(
@@ -52,58 +56,68 @@ def create_html_tables(countries: list[str], country_infos: list[list]):
         tables += f"""
     <table>
         <caption> {country} </caption>
-        {country_table[7:]}  <!-- Stripping the <table> tag from tabulate output -->
+        {country_table[7:]}
     </table>"""
 
     return tables
 
 
+def create_html_chart(chart: alt.Chart) -> str:
+    with BytesIO() as bs:
+        chart.save(bs, format="png")
+        bs.seek(0)
+
+        data = b64encode(bs.read()).decode("utf-8")
+
+    return f"data:image/png;base64,{data}"
+
+
 if __name__ == "__main__":
     load_dotenv()
+
     connection = get_connection()
-    print("1")
     cursor = get_cursor(connection)
-    print("2")
+
     top_5_artists = get_top_5_artists_world_sales(cursor)
-    print("3")
     top_5_tags = get_top_5_tags_world_sales(cursor)
-    print("4")
     top_5_tracks = get_top_5_tracks_world_sales(cursor)
-    print("5")
+
+    artists_chart = get_top_artists_chart(top_5_artists)
+    artists_chart_html = create_html_chart(artists_chart)
+    tags_chart = get_top_tags_chart(top_5_tags)
+    tags_chart_html = create_html_chart(tags_chart)
+    tracks_chart = get_top_tracks_chart(top_5_tracks)
+    tracks_chart_html = create_html_chart(tracks_chart)
+
     top_5_countries = get_top_5_countries_sales(cursor)
-    print("6")
     countries_list = get_top_5_countries(top_5_countries)
-    print("7")
     top_5_country_metrics = get_top_5_metrics_in_top_5_countries(
         cursor, countries_list)
-    print("8")
 
     cursor.close()
     connection.close()
-    print("9")
+
     html_tables = create_html_tables(countries_list, top_5_country_metrics)
-    print("10")
 
     html_report = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        h1 {{ text-align: center; }}
-        table, th, td {{ border: none; border-collapse: collapse; padding: 2px; text-align: center; }}
-        table {{ width: 100%; margin: 5px 0; }}
-        th {{ background-color: #f2f2f2; }}
-        td {{ vertical-align: top;}}
-        caption {{ border: none; text-align: center; font-size: 1.5em; font-weight: bold; margin-top: 0px; margin-bottom: 0px; }}
-    </style>
+    <link rel="stylesheet" type="text/css" href="{ENV['CSS_PATH']}" />
 </head>
 <body>
-    <h1>Bandcamp Daily Report:</h1>
-    <p style="text-align: center;">Good morning subscriber! Here is today's daily report on Bandcamp metrics both worldwide and for specific countries.</p>
+    <h1>Bandcamp Daily Report</h1>
+    <h2>Good Morning Subscriber!<br>Today's daily report provides information on worldwide trends and country specific ones too.</h2>
+    <h3><br>Top 5 Rankings Worldwide by Total Revenue<br></h3>
+    <div class="charts">
+        <img src="{artists_chart_html}" class="responsive-charts" />
+        <img src="{tags_chart_html}" class="responsive-charts" />
+        <img src="{tracks_chart_html}" class="responsive-charts" />
+    </div>
+    <h3><br>Top 5 Rankings based on Location by Number of Purchases </3>
     {html_tables}
 </body>
 </html>
 """
-    print("11")
+
     convert_html_to_pdf(html_report, ENV["FILENAME"])
-    print("12")

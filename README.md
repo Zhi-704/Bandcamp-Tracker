@@ -14,7 +14,7 @@
 ### 🎯 Deliverables
 - A **full data pipeline**, hosted in the cloud.
 - A **long-term storage solution** for the data extracted from Bandcamp.
-- Some form of **visualisation of the data**.
+- **Visualisation** of the sales data.
 
 
 ## ✏️ Design

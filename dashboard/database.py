@@ -301,26 +301,43 @@ def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[st
 
 
 @st.cache_data(ttl="1hr")
-def get_tag_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
+def get_tag_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")
 
     query = """
-        SELECT DATE_TRUNC('hour', AP.timestamp) AS hour, COUNT(DISTINCT AP.album_purchase_id)+COUNT(DISTINCT TP.track_purchase_id) as sales
+        SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id)  as sales
         FROM tag AS T
-        LEFT JOIN album_tag_assignment AS ATA
+        INNER JOIN track_tag_assignment as TTA
         USING(tag_id)
-        LEFT JOIN album as A
-        USING(album_id)
-        LEFT JOIN album_purchase as AP
-        ON AP.album_id = A.album_id
-        LEFT JOIN track_tag_assignment as TTA
-        ON (T.tag_id = TTA.tag_id)
-        LEFT JOIN track as TK
-        USING (track_id)
-        LEFT JOIN track_purchase as TP
-        ON (TP.track_id = TK.track_id)
+        INNER JOIN track_purchase as TP
+        USING(track_id)
+        WHERE T.name = %s
+        GROUP BY hour
+        ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (tag_name, ))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)
+
+
+@st.cache_data(ttl="1hr")
+def get_tag_album_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
+    """Returns all sales for a given tag."""
+
+    print(f"Counting tag sales for tag {tag_name}...")
+
+    query = """
+        SELECT DATE_TRUNC('hour', AP.timestamp) AS hour, COUNT(DISTINCT AP.album_purchase_id) as sales
+        FROM tag AS T
+        INNER JOIN album_tag_assignment as ATA
+        USING (tag_id)
+        INNER JOIN album_purchase as AP
+        USING (album_id)
         WHERE T.name = %s
         GROUP BY hour
         ;

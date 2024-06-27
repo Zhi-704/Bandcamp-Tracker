@@ -1,5 +1,5 @@
 """Navigation for dashboard."""
-
+import os
 from dotenv import load_dotenv
 import streamlit as st
 from streamlit_navigation_bar import st_navbar
@@ -11,11 +11,13 @@ if __name__ == "__main__":
     load_dotenv()
     pages = ["Home 🏠", "Artists 🎤", "Locations 📍",
              "Subscriptions 📧", "Tags 🏷️"]
+    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(parent_dir, "Apollo.svg")
     options = {
         "show_menu": False,
         "show_sidebar": False,
     }
-    page = st_navbar(pages, options=options)
+    page = st_navbar(pages, options=options, logo_path=logo_path)
 
     functions = {
         "Home 🏠": pg.show_home,

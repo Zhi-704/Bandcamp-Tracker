@@ -5,14 +5,12 @@ import streamlit as st
 import boto3
 from database import get_all_tags, get_connection
 
+ARN_PREFIX = "arn:aws:sns:eu-west-2:129033205317:c11-bandcamp"
+
 
 def create_subscription(protocol, endpoint, arn, client):
     """Adds a subscription to a topic"""
-    return client.subscribe(
-        TopicArn=arn,
-        Protocol=protocol,
-        Endpoint=endpoint
-    )
+    return client.subscribe(TopicArn=arn, Protocol=protocol, Endpoint=endpoint)
 
 
 def create_topic(client, topic_name: str):
@@ -30,6 +28,8 @@ def get_topics(client):
 
 
 def show_subscriptions():
+    """Displays the subscription page and runs the processes
+        responsible for managing subscriptions."""
     st.title("Subscriptions")
 
     conn = get_connection()
@@ -39,17 +39,20 @@ def show_subscriptions():
         "1. PDF reports - daily summaries of purchases on Bandcamp as a PDF emailed to you")
     pdf = st.checkbox(
         "I would like to sign up for daily PDF reports")
-
     st.write(
         "2. Notifications - get notified of what's trending for your favourite tags!")
-
     notifications = st.checkbox(
-        "I would like to sign up for notifications for specific tags")
+        "I would like to sign up for notifications for specific tags"
+    )
 
     email = None
     tags = None
 
-    with st.form("Subscriptions", clear_on_submit=False, border=True, ):
+    with st.form(
+        "Subscriptions",
+        clear_on_submit=False,
+        border=True,
+    ):
         st.header("Subscribe to emails")
         if pdf:
             name = st.text_input("Name")
@@ -65,16 +68,17 @@ def show_subscriptions():
             tags = st.multiselect(
                 "Choose which tag(s) you would like to subscribe to...",
                 get_all_tags(conn),
-                placeholder="Select tag...")
+                placeholder="Select tag...",
+            )
             if not tags:
                 st.error("Missing field - you must choose at least one tag")
         submitted = st.form_submit_button()
 
     sns_client = boto3.client(
-        'sns',
-        region_name='eu-west-2',
+        "sns",
+        region_name="eu-west-2",
         aws_access_key_id=ENV["ACCESS_KEY"],
-        aws_secret_access_key=ENV["SECRET_ACCESS_KEY"]
+        aws_secret_access_key=ENV["SECRET_ACCESS_KEY"],
     )
     topic_arns = get_topics(sns_client)
 
@@ -83,19 +87,29 @@ def show_subscriptions():
             st.write(f"You are now subscribed to the {tags} tag(s)")
             for tag in tags:
                 tag = tag.replace(" ", "-")
-                if f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}' not in topic_arns:
+                if (
+                    f"{ARN_PREFIX}-{tag}"
+                    not in topic_arns
+                ):
                     create_topic(sns_client, tag)
                     create_subscription(
-                        'email', email, f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}', sns_client)
+                        "email",
+                        email,
+                        f"{ARN_PREFIX}-{
+                            tag}",
+                        sns_client,
+                    )
 
                 else:
-                    topic_arn = f'arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
-                        tag}'
-                    create_subscription('email', email, topic_arn, sns_client)
+                    topic_arn = f"{ARN_PREFIX}-{
+                        tag}"
+                    create_subscription("email", email, topic_arn, sns_client)
 
         if pdf and name and email:
             with conn.cursor() as cur:
                 cur.execute(
-                    """INSERT INTO subscriber (email, name) VALUES (%s, %s)""", (email, name))
+                    """INSERT INTO subscriber (email, name) VALUES (%s, %s)""",
+                    (email, name),
+                )
             conn.commit()
             st.write("You are now subscribed to receive daily PDF reports")

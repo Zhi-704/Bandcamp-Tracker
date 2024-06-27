@@ -13,7 +13,8 @@ def show_home():
 
     st.title("Home")
     st.header("Welcome to the Bandcamp analysis tracker!")
-    st.write("Here you'll find insights into Bandcamp sales and you can also subscribe to receive email notifications!")
+    st.write("""Here you'll find insights into Bandcamp sales
+             and you can also subscribe to receive email notifications!""")
     album_titles = database.get_all_album_titles(conn)
 
     tracks = database.get_popular_tracks(conn)

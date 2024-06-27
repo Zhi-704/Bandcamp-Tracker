@@ -1,7 +1,7 @@
 """Tests for the load script."""
 
+from unittest.mock import MagicMock, call, patch
 import os
-from unittest.mock import patch, MagicMock, call
 import psycopg2
 from load import (
     get_connection,
@@ -10,7 +10,7 @@ from load import (
     get_or_insert_country,
     get_or_insert_album,
     get_or_insert_track_or_single,
-    get_or_insert_tags,
+    get_or_insert_tags_and_assignments,
     insert_album_or_track_purchase,
     insert_album_sale,
     insert_track_sale,
@@ -69,8 +69,7 @@ def test_get_or_insert_artist_new(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.side_effect = [None, [2]]
-    artist_id = get_or_insert_artist(
-        mock_cursor, "new_artist_name", "new_artist_url")
+    artist_id = get_or_insert_artist(mock_cursor, "new_artist_name", "new_artist_url")
     assert artist_id == 2
     mock_cursor.execute.assert_called_with(
         "INSERT INTO artist(name, url) VALUES (%s, %s) RETURNING artist_id",
@@ -87,8 +86,7 @@ def test_get_or_insert_country_existing(mock_get_cursor):
     country_id = get_or_insert_country(mock_cursor, "country_name")
     assert country_id == 1
     mock_cursor.execute.assert_called_with(
-        "SELECT country_id FROM country WHERE country.name = %s", (
-            "country_name",)
+        "SELECT country_id FROM country WHERE country.name = %s", ("country_name",)
     )
 
 
@@ -126,8 +124,7 @@ def test_get_or_insert_album_new(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.side_effect = [None, [2]]
-    album_id = get_or_insert_album(
-        mock_cursor, "new_album_title", 1, "new_album_url")
+    album_id = get_or_insert_album(mock_cursor, "new_album_title", 1, "new_album_url")
     assert album_id == 2
     mock_cursor.execute.assert_called_with(
         "INSERT INTO album(title, artist_id, url) VALUES (%s, %s, %s) RETURNING album_id",
@@ -141,8 +138,7 @@ def test_get_or_insert_track_or_single_existing(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.return_value = [1]
-    track_id = get_or_insert_track_or_single(
-        mock_cursor, "song_title", 1, "song_url")
+    track_id = get_or_insert_track_or_single(mock_cursor, "song_title", 1, "song_url")
     assert track_id == 1
     mock_cursor.execute.assert_called_with(
         "SELECT track_id FROM track WHERE track.title = %s\
@@ -168,35 +164,82 @@ def test_get_or_insert_track_or_single_new(mock_get_cursor):
 
 
 @patch("load.get_cursor")
-def test_get_or_insert_tags_new(mock_get_cursor):
-    """Test case for get_or_insert_tags with new tag."""
+def test_get_or_insert_tags_and_assignments_new_album(mock_get_cursor):
+    """Test case for get_or_insert_tags_and_assignments with new tag and album assignment."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    mock_cursor.fetchone.side_effect = [None, [1]]
-    get_or_insert_tags(mock_cursor, "new_tag", album_id=1)
+    mock_cursor.fetchone.side_effect = [None, [1], None]
+    get_or_insert_tags_and_assignments(mock_cursor, "new_tag", album_id=1)
     calls = [
         call("SELECT tag_id FROM tag WHERE name = %s", ("new_tag",)),
         call("INSERT INTO tag(name) VALUES (%s) RETURNING tag_id", ("new_tag",)),
         call(
-            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (
-                1, 1)
+            "SELECT album_tag_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
+            (1, 1),
+        ),
+        call(
+            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
 
 
 @patch("load.get_cursor")
-def test_get_or_insert_tags_existing(mock_get_cursor):
-    """Test case for get_or_insert_tags with existing tag."""
+def test_get_or_insert_tags_and_assignments_existing_album(mock_get_cursor):
+    """Test case for get_or_insert_tags_and_assignments with existing tag and album assignment."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    mock_cursor.fetchone.return_value = [1]
-    get_or_insert_tags(mock_cursor, "existing_tag", album_id=1)
+    mock_cursor.fetchone.side_effect = [[1], None]
+    get_or_insert_tags_and_assignments(mock_cursor, "existing_tag", album_id=1)
     calls = [
         call("SELECT tag_id FROM tag WHERE name = %s", ("existing_tag",)),
         call(
-            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (
-                1, 1)
+            "SELECT album_tag_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
+            (1, 1),
+        ),
+        call(
+            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (1, 1)
+        ),
+    ]
+    mock_cursor.execute.assert_has_calls(calls)
+
+
+@patch("load.get_cursor")
+def test_get_or_insert_tags_and_assignments_new_track(mock_get_cursor):
+    """Test case for get_or_insert_tags_and_assignments with new tag and track assignment."""
+    mock_cursor = MagicMock()
+    mock_get_cursor.return_value = mock_cursor
+    mock_cursor.fetchone.side_effect = [None, [1], None]
+    get_or_insert_tags_and_assignments(mock_cursor, "new_tag", track_id=1)
+    calls = [
+        call("SELECT tag_id FROM tag WHERE name = %s", ("new_tag",)),
+        call("INSERT INTO tag(name) VALUES (%s) RETURNING tag_id", ("new_tag",)),
+        call(
+            "SELECT track_tag_assignment_id from album_tag_assignment WHERE track_id = %s and tag_id = %s",
+            (1, 1),
+        ),
+        call(
+            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (1, 1)
+        ),
+    ]
+    mock_cursor.execute.assert_has_calls(calls)
+
+
+@patch("load.get_cursor")
+def test_get_or_insert_tags_and_assignments_existing_track(mock_get_cursor):
+    """Test case for get_or_insert_tags_and_assignments with existing tag and track assignment."""
+    mock_cursor = MagicMock()
+    mock_get_cursor.return_value = mock_cursor
+    mock_cursor.fetchone.side_effect = [[1], None]
+    get_or_insert_tags_and_assignments(mock_cursor, "existing_tag", track_id=1)
+    calls = [
+        call("SELECT tag_id FROM tag WHERE name = %s", ("existing_tag",)),
+        call(
+            "SELECT track_tag_assignment_id from album_tag_assignment WHERE track_id = %s and tag_id = %s",
+            (1, 1),
+        ),
+        call(
+            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
@@ -207,8 +250,7 @@ def test_insert_album_or_track_purchase_album(mock_get_cursor):
     """Test case for insert_album_or_track_purchase with album purchase."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    insert_album_or_track_purchase(
-        mock_cursor, "timestamp", 10.0, 1, album_id=1)
+    insert_album_or_track_purchase(mock_cursor, "timestamp", 10.0, 1, album_id=1)
     mock_cursor.execute.assert_called_with(
         "INSERT INTO album_purchase(album_id, timestamp, amount_usd, country_id)\
                 VALUES (%s, %s, %s, %s)",
@@ -221,8 +263,7 @@ def test_insert_album_or_track_purchase_track(mock_get_cursor):
     """Test case for insert_album_or_track_purchase with track purchase."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    insert_album_or_track_purchase(
-        mock_cursor, "timestamp", 10.0, 1, track_id=1)
+    insert_album_or_track_purchase(mock_cursor, "timestamp", 10.0, 1, track_id=1)
     mock_cursor.execute.assert_called_with(
         "INSERT INTO track_purchase(track_id, timestamp, amount_usd, country_id)\
                 VALUES (%s, %s, %s, %s)",
@@ -262,7 +303,7 @@ def test_insert_album_sale(mock_get_cursor):
     }
     insert_album_sale(mock_cursor, album_sale)
 
-    assert mock_cursor.fetchone.call_count == 9
+    assert mock_cursor.fetchone.call_count == 15
     assert mock_cursor.execute.call_count == 16
 
 
@@ -288,7 +329,7 @@ def test_insert_track_sale(mock_get_cursor):
 
     insert_track_sale(mock_cursor, track_sale)
 
-    assert mock_cursor.fetchone.call_count == 8
+    assert mock_cursor.fetchone.call_count == 12
     assert mock_cursor.execute.call_count == 13
 
 
@@ -323,5 +364,5 @@ def test_insert_single_sale(mock_get_cursor):
 
     insert_single_sale(mock_cursor, single_sale)
 
-    assert mock_cursor.fetchone.call_count == 9
+    assert mock_cursor.fetchone.call_count == 15
     assert mock_cursor.execute.call_count == 16

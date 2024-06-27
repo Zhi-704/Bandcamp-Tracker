@@ -1,10 +1,12 @@
 aiohttp
 altair
-asyncio
 bs4
+boto3
 logging
 pandas
+plotly
 psycopg
+psycopg2-binary
 python-dotenv
 pylint
 pytest
@@ -12,3 +14,5 @@ pytest-asyncio
 pytest-cov
 requests
 streamlit
+streamlit-navigation-bar
+watchdog

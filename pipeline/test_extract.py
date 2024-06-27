@@ -50,7 +50,7 @@ class TestExtractItems():
     ]
 
     # pylint: disable=unused-argument
-    async def mock_extract_and_scrape_item(self, session, item, timeout):
+    async def mock_extract_and_scrape_item(self, sempahore, session, item, timeout):
         '''Fake function to use'''
         if item["url"] == "https://example.com/a":
             return {"item_type": "a", "url": item["url"], "tags": ["tag1", "tag2"]}

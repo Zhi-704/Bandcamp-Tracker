@@ -5,7 +5,7 @@ from generate_pdf import create_pdf
 from mailer import send_all_emails
 
 
-def main():
+def main(event, context):  # pylint: disable=unused-argument
     """Main function to execute the:
         1. Generation of the daily report PDFs
         2. Sending of PDFs to all subscribers
@@ -20,4 +20,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main("foo", "bar")

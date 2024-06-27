@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from database import get_connection, get_tag_album_sales_by_tag, get_tag_track_sales_by_tag, get_sales_by_tag, get_all_tags
+from database import get_connection, get_album_sales_by_tag, get_track_sales_by_tag, get_sales_by_tag, get_all_tags
 from charts import get_tag_sales_line_graph, get_most_popular_tags_chart
 
 
@@ -22,8 +22,8 @@ def show_tags():
     chosen_tag = st.selectbox(
         "Choose which tag you would like to see...", all_tags)
 
-    chosen_tag_album_data = get_tag_album_sales_by_tag(conn, chosen_tag)
-    chosen_tag_track_data = get_tag_track_sales_by_tag(conn, chosen_tag)
+    chosen_tag_album_data = get_album_sales_by_tag(conn, chosen_tag)
+    chosen_tag_track_data = get_track_sales_by_tag(conn, chosen_tag)
 
     col = st.columns(2)
 

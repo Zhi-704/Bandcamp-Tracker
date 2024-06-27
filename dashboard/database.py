@@ -302,7 +302,7 @@ def get_sales_for_chosen_artists(sales_data: pd.DataFrame, artist_names: list[st
 
 
 @st.cache_data(ttl="1hr")
-def get_tag_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
+def get_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")
@@ -327,7 +327,7 @@ def get_tag_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame
 
 
 @st.cache_data(ttl="1hr")
-def get_tag_album_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
+def get_album_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")

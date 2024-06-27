@@ -17,12 +17,6 @@ if __name__ == "__main__":
     }
     page = st_navbar(pages, options=options)
 
-    styles = {
-        "nav": {
-            "background-color": "#fff7e2"
-        }
-    }
-
     functions = {
         "Home 🏠": pg.show_home,
         "Artists 🎤": pg.show_artists,

@@ -25,7 +25,8 @@ from charts import (get_top_artists_chart,
 
 def get_connection() -> object:
     """This function uses psycopg2 to create the connection to the RDS"""
-    conn = connect(
+
+    return connect(
         host=ENV["DB_ENDPOINT"],
         user=ENV["DB_USER"],
         password=ENV["DB_PASSWORD"],
@@ -33,13 +34,11 @@ def get_connection() -> object:
         port=ENV["DB_PORT"]
     )
 
-    return conn
-
 
 def get_cursor(conn: object) -> object:
     """This function uses the connection object to create a cursor object"""
-    cur = conn.cursor()
-    return cur
+
+    return conn.cursor()
 
 
 def get_top_5_countries(countries: list[tuple]) -> list[str]:

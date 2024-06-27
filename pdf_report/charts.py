@@ -16,7 +16,7 @@ def get_top_artists_chart(data: DataFrame) -> alt.Chart:
         x=alt.X("2:N", axis=alt.Axis(title="Artists", labels=False)),
         y=alt.Y("1:Q", title="Sales (USD)"),
         color=alt.Color("2:N", scale=alt.Scale(
-            scheme="blues"), legend=alt.Legend(title="Artists"))
+            scheme="reds"), legend=alt.Legend(title="Artists"))
     ).properties(
         width=60,
         height=145,
@@ -44,7 +44,7 @@ def get_top_tracks_chart(data: DataFrame) -> alt.Chart:
         x=alt.X("2:N", axis=alt.Axis(title="Tracks", labels=False)),
         y=alt.Y("1:Q", title="Sales (USD)"),
         color=alt.Color("2:N", scale=alt.Scale(
-            scheme="blues"), legend=alt.Legend(title="Tracks"))
+            scheme="greens"), legend=alt.Legend(title="Tracks"))
     ).properties(
         width=60,
         height=145,

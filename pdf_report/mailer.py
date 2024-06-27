@@ -16,10 +16,12 @@ import psycopg2
 import psycopg2.extras
 from psycopg2.extensions import connection as DBConnection, cursor as DBCursor
 
+load_dotenv()
+
 
 AWS_REGION = "eu-west-2"
 # The full path to the file that will be attached to the email.
-ATTACHMENT = "./daily_report.pdf"
+ATTACHMENT = ENV["FILENAME"]
 # The character encoding for the email.
 CHARSET = "utf-8"
 
@@ -130,8 +132,6 @@ def send_all_emails() -> None:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
-
-    load_dotenv()
 
     sender = f"Sender Name <{ENV["SES_SENDER"]}>"
 

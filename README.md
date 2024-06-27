@@ -139,8 +139,6 @@ This project is licensed under alina101, e-lemma, Lasped13, and Zhi-704 - see th
 ## ❤️ Acknowledgements
 - 🎹 **Band Camp** for providing us with data.
 - 🧡 **Sigma Labs** for giving us this project.
-- 🤖 **Sigma Bot** for helping us create the tracker.
-- 🐙 [**Dan**](https://github.com/Peritract) for helping the team at Apollo to clean their database.
 - 🎼 **Team Apollo** for creating this tracker via the use of:
   1. *Ten percent luck*
   2. *Twenty percent skill*

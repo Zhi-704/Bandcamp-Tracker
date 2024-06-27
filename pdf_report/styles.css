@@ -1,0 +1,28 @@
+h1, h2, h3 { 
+    text-align: center;
+    vertical-align: center;
+ }
+table, th, td { 
+    border: none; 
+    border-collapse: collapse; 
+    padding: 2px; 
+    text-align: center; 
+}
+table { 
+    width: 100%; 
+    height: 17px; 
+    margin: 5px 0; }
+th { background-color: #f2f2f2; 
+}
+td { 
+    vertical-align: top; 
+}
+caption { 
+    border: none; 
+    text-align: center; 
+    font-size: 1em; 
+    font-weight: bold; 
+    margin-top: 0px; 
+    margin-bottom: 0px;
+    vertical-align: bottom;
+ }

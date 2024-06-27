@@ -230,27 +230,28 @@ def get_all_album_titles(_conn: Connection):
 
 
 @st.cache_data(ttl="1hr")
-def get_album_sales_by_album(_conn: Connection, album_name: str):
+def get_track_sales_by_artist(_conn: Connection, artist: str):
     """Returns all album info for a given album."""
 
-    print(f"Counting album sales for album {album_name}...")
+    print(f"Counting album sales for artist {artist}...")
 
     query = """
-        SELECT A.title, AT.name, AP.timestamp
-        FROM album_purchase AS AP
-        JOIN album AS A
-        USING (album_id)
-        JOIN artist as AT
-        USING (artist_id)
-        WHERE A.title = %s
-        ;
+            SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
+            FROM artist AS A
+            INNER JOIN track as T
+            USING(artist_id)
+            INNER JOIN track_purchase as TP
+            USING(track_id)
+            WHERE A.name = %s
+            GROUP BY hour
+            ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (album_name, ))
+        cur.execute(query, (artist, ))
         data = cur.fetchall()
 
-    return data
+    return pd.DataFrame(data)
 
 
 @st.cache_data(ttl="1hr")

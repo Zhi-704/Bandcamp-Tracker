@@ -6,3 +6,5 @@ plotly
 pylint
 python-dotenv
 streamlit
+streamlit-navigation-bar
+watchdog

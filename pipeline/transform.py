@@ -59,10 +59,10 @@ def clean_data(sales_data: dict) -> dict:
 
 
 def clean_tags(tags: list[str]) -> list[str]:
-    """Removes leading/trailing whitespace and 'lowercases' a list of tags, returning it."""
+    """Removes leading/trailing whitespace, leading hashtags, and 'lowercases' a list of tags, returning it."""
     if tags is None:
         return []
-    return [tag.strip().lower() for tag in tags]
+    return [tag.lstrip("#").strip().lower() for tag in tags]
 
 
 def transform_sales_data(sales_data: list[dict]) -> list[dict]:

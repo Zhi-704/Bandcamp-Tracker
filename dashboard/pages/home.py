@@ -12,7 +12,8 @@ def show_home():
     conn = database.get_connection()
 
     st.title("Home")
-    st.header("Welcome to the Bandcamp analysis tracker!")
+    st.header("Welcome to Apollo!")
+    st.subheader("The Bandcamp Sales Tracker")
     st.write("Here you'll find insights into Bandcamp sales and you can also subscribe to receive email notifications!")
     album_titles = database.get_all_album_titles(conn)
 

@@ -1,11 +1,31 @@
-.env
+# Operating System Files
+*.DS_Store
+
+# Virtual Environment
 .venv
 
-*.csv
-*.json
+# Environment Variables
+.env
 
+# Python
+__pycache__/
+*.pyc
 .pytest_cache
-__pycache__
 .coverage
 
-daily_report.pdf
+# Project Data
+*.csv
+*.json
+*.ipynb
+*.txt
+*.pdf
+
+# Terraform
+*.terraform
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Relevant files
+!requirements.txt

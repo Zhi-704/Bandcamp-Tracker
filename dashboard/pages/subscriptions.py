@@ -7,6 +7,8 @@ from database import get_all_tags, get_connection
 
 ARN_PREFIX = "arn:aws:sns:eu-west-2:129033205317:c11-bandcamp"
 
+TOPIC_NAME_ALLOWED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-"
+
 
 def create_subscription(protocol, endpoint, arn, client):
     """Adds a subscription to a topic"""
@@ -91,6 +93,9 @@ def show_subscriptions():
                     f"{ARN_PREFIX}-{tag}"
                     not in topic_arns
                 ):
+                    for char in tag:
+                        if char not in TOPIC_NAME_ALLOWED:
+                            tag = tag.replace(char, "_")
                     create_topic(sns_client, tag)
                     create_subscription(
                         "email",

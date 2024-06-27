@@ -20,4 +20,4 @@ Requirements must be installed - `requirements.txt`
 
 To run : `streamlit run tracker.py`
 
-The whole folder contains scripts to run the dashboard which displays visualisations and 
+The whole folder contains scripts to run the dashboard which displays visualisations and analytics to do with music purchases on bandcamp.

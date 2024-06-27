@@ -3,5 +3,8 @@ boto3
 python-dotenv
 xhtml2pdf
 altair
+altair_saver
+vl-convert-python
 pandas
 tabulate
+streamlit

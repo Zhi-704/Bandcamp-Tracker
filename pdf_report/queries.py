@@ -1,7 +1,15 @@
+"""
+This script handles all the SQL queries to the RDS 
+that extracts the necessary data required to calculate the important
+metrics for the analytics provided by the PDF
+"""
+
+
 import pandas as pd
 
 
 def get_top_5_artists_world_sales(cur: object) -> pd.DataFrame:
+    """Query that extracts the top 5 artists in the world ranked by total revenue made."""
     cur.execute("""
 SELECT a.name AS artist, COALESCE(ap.total, 0) + COALESCE(tp.total, 0) AS total_sales
 FROM artist a
@@ -28,6 +36,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
 
 
 def get_top_5_tags_world_sales(cur: object) -> pd.DataFrame:
+    """Query that extracts the top 5 tags in the world ranked by total revenue made."""
     cur.execute("""
 SELECT t.name AS tag, COALESCE(ap.total, 0) + COALESCE(tp.total, 0) AS total_sales
 FROM tag t
@@ -54,6 +63,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
 
 
 def get_top_5_tracks_world_sales(cur: object) -> pd.DataFrame:
+    """Query that extracts the top 5 tracks in the world ranked by total revenue made."""
     cur.execute("""
 SELECT t.title AS track, COALESCE(tp.total_sales, 0) AS total_sales
 FROM track t
@@ -73,7 +83,8 @@ ORDER BY total_sales DESC LIMIT 5;""")
 
 
 def get_top_5_countries_sales(cur: object) -> list[tuple]:
-    cur.execute(f"""
+    """Query that extracts the top 5 countries by total revenue made."""
+    cur.execute("""
 SELECT c.name AS country,COALESCE(ap.total_sales, 0) + COALESCE(tp.total_sales, 0) AS total_sales
 FROM country c
 LEFT JOIN (
@@ -93,12 +104,15 @@ ORDER BY total_sales DESC LIMIT 5;""")
 
 
 def format_length_of_string(string: str):
+    """Function that cuts down the size of a string if it is too long so that it can fit the PDF."""
     if len(string) > 25:
         return string[:25] + '...'
+
     return string
 
 
 def get_top_5_artists_volume_specific(cur: object, country: str) -> list[tuple]:
+    """Gets the top 5 artists for a specific country ranked by the number of purchases made."""
     cur.execute("""
 SELECT a.name AS artist, COALESCE(ap.total_sales_count, 0) + COALESCE(tp.total_sales_count, 0) AS total_sales_count
 FROM artist a
@@ -121,12 +135,13 @@ ORDER BY total_sales_count DESC LIMIT 5;""", (country, country))
 
     result = cur.fetchall()
     formatted_result = [
-        f"{i+1}. {format_length_of_string(artist)}, {value}" for i, (artist, value) in enumerate(result)]
+        f"{i+1}. {format_length_of_string(a)}, {v}" for i, (a, v) in enumerate(result)]
 
     return formatted_result
 
 
 def get_top_5_tag_volume_specific(cur: object, country: str) -> list[tuple]:
+    """Gets the top 5 tags for a specific country ranked by the number of purchases made."""
     cur.execute("""
 SELECT t.name AS tag, COALESCE(ap.total_sales_count, 0) + COALESCE(tp.total_sales_count, 0) AS total_sales_count
 FROM tag t
@@ -148,12 +163,13 @@ GROUP BY t.name, ap.total_sales_count, tp.total_sales_count
 ORDER BY total_sales_count DESC LIMIT 5;""", (country, country))
     result = cur.fetchall()
     formatted_result = [
-        f"{i+1}. {format_length_of_string(tag)}, {value}" for i, (tag, value) in enumerate(result)]
+        f"{i+1}. {format_length_of_string(t)}, {v}" for i, (t, v) in enumerate(result)]
 
     return formatted_result
 
 
 def get_top_5_tracks_volume_specific(cur: object, country: str) -> list[tuple]:
+    """Gets the top 5 tracks for a specific country ranked by the number of purchases made."""
     cur.execute("""
 SELECT t.title AS track, COALESCE(tp.total_sales_count, 0) AS total_sales_count
 FROM track t
@@ -167,18 +183,22 @@ GROUP BY t.title, tp.total_sales_count
 ORDER BY total_sales_count DESC LIMIT 5;""", (country,))
     result = cur.fetchall()
     formatted_result = [
-        f"{i+1}. {format_length_of_string(track)}, {value}" for i, (track, value) in enumerate(result)]
+        f"{i+1}. {format_length_of_string(t)}, {v}" for i, (t, v) in enumerate(result)]
 
     return formatted_result
 
 
 def get_top_5_metrics_in_top_5_countries(cur: object, countries: list[tuple]) -> list[list]:
+    """
+    For a specific country, this function gets all the metrics
+    involving that country and adds it to a list.
+    """
     country_metrics = []
     for country in countries:
         country_info = []
         country_info.append(get_top_5_artists_volume_specific(cur, country))
-        country_info.append(get_top_5_tag_volume_specific(cur, country))
         country_info.append(get_top_5_tracks_volume_specific(cur, country))
+        country_info.append(get_top_5_tag_volume_specific(cur, country))
         country_metrics.append(country_info)
 
     return country_metrics

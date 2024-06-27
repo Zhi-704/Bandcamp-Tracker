@@ -86,3 +86,8 @@ Common issues which people face are:
 ## 📚 Version History
 - 1.0
   - Initial release
+
+
+## © License
+This project is licensed under alina101, e-lemma, Lasped13, and Zhi-704 - see the LICENSE.md file for details.
+

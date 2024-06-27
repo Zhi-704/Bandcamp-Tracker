@@ -29,7 +29,7 @@ def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular tracks...")
 
     query = """
-        SELECT T.title, A.name, COUNT(*) AS copies_sold, T.url as url
+        SELECT T.title, A.name, COUNT(track_purchase_id) AS copies_sold, T.url as url
         FROM track_purchase AS PT
         JOIN track AS T
         USING(track_id)
@@ -309,13 +309,13 @@ def get_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     print(f"Counting tag sales for tag {tag_name}...")
 
     query = """
-        SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id)  as sales
+        SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
         FROM tag AS T
         INNER JOIN track_tag_assignment as TTA
         USING(tag_id)
         INNER JOIN track_purchase as TP
         USING(track_id)
-        WHERE T.name = %s
+        WHERE T.name = %s 
         GROUP BY hour
         ;
         """

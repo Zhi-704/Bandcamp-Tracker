@@ -30,8 +30,8 @@ def get_sns_client() -> client:
     '''Creates sns client'''
     return client('sns',
                   aws_access_key_id=ENV["ACCESS_KEY"],
-                  aws_secret_access_key=ENV["SECRET_ACCESS_KEY"]
-                  )
+                  aws_secret_access_key=ENV["SECRET_ACCESS_KEY"],
+                  region_name='eu-west-2')
 
 
 def filter_topics(filter_word: str, topic_list: list[dict]) -> list[dict]:
@@ -125,8 +125,8 @@ def publish_list_to_topic(sns_client: client,
         item_type = item['type'].title()
         item_url = item['url']
 
-        message += f"{item_type} '{item_name}' by '{
-            item_author}' is currently trending!\n"
+        message += f'''{item_type} '{item_name}' by '{
+            item_author}' is currently trending!\n'''
         message += f"Check it out here at: {item_url}\n\n"
 
     response = sns_client.publish(
@@ -178,25 +178,30 @@ def notification_system() -> None:
         trending_data = trending_tracks + trending_albums
 
         if len(trending_data) == 0:
-            logging.info("No trending items found for %s \n",
-                         tag_dict['Tag'])
+
+            print(f"No trending items found for {tag_dict['Tag']} \n")
+
             continue
         if len(trending_data) >= 1:
             response = publish_list_to_topic(
                 sns, tag_dict['TopicArn'], tag_dict['Tag'].title(), trending_data)
             if response:
-                logging.info("Email sent for %s \n",
-                             tag_dict['Tag'])
+                print(f"Email sent for {tag_dict['Tag']} \n")
 
     conn.close()
 
 
-if __name__ == "__main__":
+def lambda_handler(event, context):  # pylint: disable=unused-argument
+    """Executes the notification system process."""
     configure_log()
+    logger = logging.getLogger()
+
+    print("Lambda function started.")
     load_dotenv()
 
-    logging.info("Notification system started.")
+    logger.info("Notification system started.")
 
     notification_system()
 
-    logging.info("Notification system ended.")
+    logger.info("Notification system ended.")
+    print("Lambda function has ended.")

@@ -108,7 +108,7 @@ if __name__ == "__main__":
 <body>
     <h1>Bandcamp Daily Report</h1>
     <h2>Good Morning Subscriber!<br>Today's daily report provides information on worldwide trends and country specific ones too.</h2>
-    <h3><br>Top 5 Rankings Worldwide by Total Revenue<br></h3>
+    <h3><br>Top 5 Rankings Worldwide by Total Revenue</h3>
     <div class="charts">
         <img src="{artists_chart_html}" class="responsive-charts" />
         <img src="{tags_chart_html}" class="responsive-charts" />

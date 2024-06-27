@@ -22,7 +22,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
     result_df = pd.DataFrame(result)
     result_df[1] = result_df[1].astype(float)
     result_df[2] = result_df[0].apply(
-        lambda x: x[:6] + '...' if len(x) > 6 else x)
+        lambda x: x[:12] + '...' if len(x) > 12 else x)
 
     return result_df
 
@@ -48,7 +48,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
     result_df = pd.DataFrame(result)
     result_df[1] = result_df[1].astype(float)
     result_df[2] = result_df[0].apply(
-        lambda x: x[:6] + '...' if len(x) > 6 else x)
+        lambda x: x[:12] + '...' if len(x) > 12 else x)
 
     return result_df
 
@@ -67,7 +67,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
     result_df = pd.DataFrame(result)
     result_df[1] = result_df[1].astype(float)
     result_df[2] = result_df[0].apply(
-        lambda x: x[:6] + '...' if len(x) > 6 else x)
+        lambda x: x[:25] + '...' if len(x) > 25 else x)
 
     return result_df
 

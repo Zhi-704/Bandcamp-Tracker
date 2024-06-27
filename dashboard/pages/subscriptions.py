@@ -37,11 +37,12 @@ def show_subscriptions():
     st.write("We offer two different email subscriptions:")
     st.write(
         "1. PDF reports - daily summaries of purchases on Bandcamp as a PDF emailed to you")
+    pdf = st.checkbox(
+        "I would like to sign up for daily PDF reports")
+
     st.write(
         "2. Notifications - get notified of what's trending for your favourite tags!")
 
-    pdf = st.checkbox(
-        "I would like to sign up for daily PDF reports")
     notifications = st.checkbox(
         "I would like to sign up for notifications for specific tags")
 

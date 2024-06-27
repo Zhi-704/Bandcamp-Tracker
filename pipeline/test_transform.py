@@ -150,7 +150,7 @@ def test_transform_sales_data_valid():
 
 
 def test_clean_tags_normal_case():
-    tags = [" TagOne ", "TAGTWO", "tagthree "]
+    tags = [" TagOne ", "##TAGTWO", "#tagthree "]
     expected = ["tagone", "tagtwo", "tagthree"]
     assert clean_tags(tags) == expected
 

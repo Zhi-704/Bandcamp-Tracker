@@ -48,8 +48,8 @@ def get_top_5_countries(countries: list[tuple]) -> list[str]:
     a new list that contains the just the country name in descending order
     which is ranked off of performance by total revenue made.
     """
-    list_of_countries = [c[0] for c in countries]
-    return list_of_countries
+
+    return [c[0] for c in countries]
 
 
 def convert_html_to_pdf(source_html: str, output_filename: str) -> None:

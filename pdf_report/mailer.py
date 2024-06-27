@@ -18,7 +18,6 @@ from psycopg2.extensions import connection as DBConnection, cursor as DBCursor
 
 load_dotenv()
 
-
 AWS_REGION = "eu-west-2"
 # The full path to the file that will be attached to the email.
 ATTACHMENT = ENV["FILENAME"]
@@ -140,6 +139,7 @@ def send_all_emails() -> None:
 
     ses_client = create_ses_client(aws_access_key, aws_secret_access_key)
 
+    conn = None
     try:
         conn = get_connection()
         subscribers = get_recipients(conn)
@@ -160,4 +160,6 @@ def send_all_emails() -> None:
 
 
 if __name__ == "__main__":
+
+    load_dotenv()
     send_all_emails()

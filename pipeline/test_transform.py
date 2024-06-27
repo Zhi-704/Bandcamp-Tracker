@@ -150,24 +150,28 @@ def test_transform_sales_data_valid():
 
 
 def test_clean_tags_normal_case():
+    """Tests that tags are properly cleaned in normal cases."""
     tags = [" TagOne ", "##TAGTWO", "#tagthree "]
     expected = ["tagone", "tagtwo", "tagthree"]
     assert clean_tags(tags) == expected
 
 
 def test_clean_tags_empty_list():
+    """Tests that an empty list is handled correctly."""
     tags = []
     expected = []
     assert clean_tags(tags) == expected
 
 
 def test_clean_tags_none():
+    """Tests that 'None' is handled correctly."""
     tags = None
     expected = []
     assert clean_tags(tags) == expected
 
 
 def test_clean_tags_whitespace_only():
+    """Tests that only whitespace is handled correctly."""
     tags = [" ", "   ", " \t "]
     expected = ["", "", ""]
     assert clean_tags(tags) == expected

@@ -1,0 +1,20 @@
+html {
+    background-color: #fff7e2;
+}
+body {
+    margin: 0;
+}
+h1, h2, h3 { text-align: center; }
+table, th, td { border: none; border-collapse: collapse; padding: 2px; text-align: center; }
+table { width: 100%; height: 16px; margin: 5px 0; }
+th { background-color: #f2f2f2; }
+td { vertical-align: top; }
+caption { border: none; text-align: center; font-size: 1em; font-weight: bold; margin-top: 0px; margin-bottom: 0px; }
+.charts {
+    text-align: center;
+}
+.responsive-charts {
+    width: 80px; 
+    padding-left: 9px;
+    padding-right: 9px;
+}

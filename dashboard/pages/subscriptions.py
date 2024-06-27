@@ -5,6 +5,8 @@ import streamlit as st
 import boto3
 from database import get_all_tags, get_connection
 
+ARN_PREFIX = "arn:aws:sns:eu-west-2:129033205317:c11-bandcamp"
+
 
 def create_subscription(protocol, endpoint, arn, client):
     """Adds a subscription to a topic"""
@@ -88,20 +90,20 @@ def show_subscriptions():
             for tag in tags:
                 tag = tag.replace(" ", "-")
                 if (
-                    f"arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{tag}"
+                    f"{ARN_PREFIX}-{tag}"
                     not in topic_arns
                 ):
                     create_topic(sns_client, tag)
                     create_subscription(
                         "email",
                         email,
-                        f"arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
+                        f"{ARN_PREFIX}-{
                             tag}",
                         sns_client,
                     )
 
                 else:
-                    topic_arn = f"arn:aws:sns:eu-west-2:129033205317:c11-bandcamp-{
+                    topic_arn = f"{ARN_PREFIX}-{
                         tag}"
                     create_subscription("email", email, topic_arn, sns_client)
 

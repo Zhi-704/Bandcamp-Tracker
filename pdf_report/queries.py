@@ -103,7 +103,7 @@ ORDER BY total_sales DESC LIMIT 5;""")
     return result
 
 
-def format_length_of_string(string: str):
+def format_length_of_string(string: str) -> str:
     """Function that cuts down the size of a string if it is too long so that it can fit the PDF."""
     if len(string) > 25:
         return string[:25] + '...'

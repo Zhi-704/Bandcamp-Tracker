@@ -55,7 +55,6 @@ docker run --env-file .env -t "image: tag"
 ```
 #### **IMPORTANT**
  One thing to note is that the majority of scripts use environment variables. Make sure to create your own .env and fill out all the variables required to run the code successfully. Smaller READMEs will be found in each folder going into more depth on how to use that specific part of the repository.
- One thing to note is that the majority of scripts use environment variables. Make sure to create your own .env and fill out all the variables required to run the code successfully. Smaller READMEs will be found in each folder going into more depth on how to use that specific part of the repository.
 
 
 ## 🚀 Running the Repository

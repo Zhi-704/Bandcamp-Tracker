@@ -18,7 +18,6 @@ data "aws_iam_role" "ecs_task_execution_role" {
 ## RDS - This works to construct a database. However, we didn't want to reset the database
 ## in order to preserve the data we have already scraped from the band camp API. Currently, 
 ## use this as the code to refer to the existing database whenever you need to:
-## {
 ##     "name": "DB_ENDPOINT",
 ##     "value": var.DB_ENDPOINT
 ## },
@@ -292,8 +291,8 @@ resource "aws_lambda_function" "c11-apollo-tf-lambda-pdf" {
       variables = {
         ACCESS_KEY = var.ACCESS_KEY
         CSS_PATH = var.CSS_PATH
-        DB_ENDPOINT = "${aws_db_instance.apollo_test_db.endpoint}"
-        DB_HOST = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_ENDPOINT = var.DB_ENDPOINT
+        DB_HOST = var.DB_ENDPOINT
         DB_NAME = var.DB_NAME
         DB_PASSWORD = var.DB_PASSWORD
         DB_PASS = var.DB_PASSWORD
@@ -337,7 +336,7 @@ resource "aws_lambda_function" "c11-apollo-tf-lambda-notifications" {
     environment {
       variables = {
         ACCESS_KEY = var.ACCESS_KEY
-        DB_ENDPOINT = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_ENDPOINT = var.DB_ENDPOINT
         DB_NAME = var.DB_NAME
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
@@ -377,7 +376,7 @@ resource "aws_lambda_function" "c11-apollo-tf-lambda-pipeline" {
     architectures = ["x86_64"]
     environment {
       variables = {
-        DB_HOST = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_HOST = var.DB_ENDPOINT
         DB_NAME = var.DB_NAME
         DB_PASS = var.DB_PASSWORD
         DB_PORT = var.DB_PORT

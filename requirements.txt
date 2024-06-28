@@ -1,5 +1,6 @@
 aiohttp
 altair
+altair_saver 
 bs4
 boto3
 logging
@@ -15,4 +16,7 @@ pytest-cov
 requests
 streamlit
 streamlit-navigation-bar
+tabulate
+vl-convert-python
 watchdog
+xhtml2pdf

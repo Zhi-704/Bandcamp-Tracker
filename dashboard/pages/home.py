@@ -12,10 +12,24 @@ def show_home():
     conn = database.get_connection()
 
     st.title("Home")
-    st.header("Welcome to the Bandcamp analysis tracker!")
-    st.write("""Here you'll find insights into Bandcamp sales
-             and you can also subscribe to receive email notifications!""")
-    album_titles = database.get_all_album_titles(conn)
+    col = st.columns(2)
+    with col[0]:
+        st.image('Apollo.png', use_column_width="auto")
+
+        hide_img_fs = """
+                    <style>
+                    button[title="View fullscreen"]{
+                        visibility: hidden;}
+                    </style>
+                    """
+
+        st.markdown(hide_img_fs, unsafe_allow_html=True)
+    with col[1]:
+        st.header("Welcome to Apollo!")
+        st.subheader("The Bandcamp Sales Tracker")
+        st.write(
+            """Here you'll find insights into Bandcamp sales and
+            you can also subscribe to receive email notifications!""")
 
     tracks = database.get_popular_tracks(conn)
     albums = database.get_popular_albums(conn)

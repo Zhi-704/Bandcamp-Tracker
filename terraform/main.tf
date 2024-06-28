@@ -15,47 +15,59 @@ data "aws_iam_role" "ecs_task_execution_role" {
 }
 
 
-## RDS 
+## RDS - This works to construct a database. However, we didn't want to reset the database
+## in order to preserve the data we have already scraped from the band camp API. Currently, 
+## use this as the code to refer to the existing database whenever you need to:
+## {
+##     "name": "DB_ENDPOINT",
+##     "value": var.DB_ENDPOINT
+## },
+## If you wish to change the script so that you construct the rds too, you need to uncomment
+## the code below and replace the variable mentioned above with the variable mentioned below.
+## {
+##    "name": "DB_HOST",
+##    "value": "${aws_db_instance.apollo_test_db.endpoint}"
+## },
 
-resource "aws_security_group" "apollo_test_db_sg" {
-    name = var.SG_DB_NAME
-    description = "Security group that allows inputting data into the rds"
-    vpc_id = data.aws_vpc.c11-VPC.id
+# resource "aws_security_group" "apollo_test_db_sg" {
+#     name = var.SG_DB_NAME
+#     description = "Security group that allows inputting data into the rds"
+#     vpc_id = data.aws_vpc.c11-VPC.id
 
-    tags = {
-        Name = var.SG_DB_IDENTIFIER
-    }
+#     tags = {
+#         Name = var.SG_DB_IDENTIFIER
+#     }
 
-    ingress {
-        from_port = 5432
-        to_port = 5432
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+#     ingress {
+#         from_port = 5432
+#         to_port = 5432
+#         protocol = "tcp"
+#         cidr_blocks = ["0.0.0.0/0"]
+#     }
 
-    egress {
-        from_port = 0
-        to_port = 0
-        protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-}
+#     egress {
+#         from_port = 0
+#         to_port = 0
+#         protocol = "-1"
+#         cidr_blocks = ["0.0.0.0/0"]
+#     }
+# }
 
-resource "aws_db_instance" "apollo_test_db" {
-    identifier = var.DB_IDENTIFIER
-    allocated_storage = 20
-    engine = "postgres"
-    engine_version = "16.3"
-    instance_class = "db.t3.micro"
-    db_name = var.DB_NAME
-    username = var.DB_USERNAME
-    password = var.DB_PASSWORD
-    db_subnet_group_name = var.DB_SUBNET_GROUP
-    vpc_security_group_ids = [aws_security_group.apollo_test_db_sg.id]
-    publicly_accessible = true
-    performance_insights_enabled = false
-    skip_final_snapshot = true
-}
+# resource "aws_db_instance" "apollo_test_db" {
+#     identifier = var.DB_IDENTIFIER
+#     allocated_storage = 20
+#     engine = "postgres"
+#     engine_version = "16.3"
+#     instance_class = "db.t3.micro"
+#     db_name = var.DB_NAME
+#     username = var.DB_USERNAME
+#     password = var.DB_PASSWORD
+#     db_subnet_group_name = var.DB_SUBNET_GROUP
+#     vpc_security_group_ids = [aws_security_group.apollo_test_db_sg.id]
+#     publicly_accessible = true
+#     performance_insights_enabled = false
+#     skip_final_snapshot = true
+# }
 
 ## Dashboard
 
@@ -103,8 +115,8 @@ resource "aws_ecs_task_definition" "apollo_test_dashboard_task_def" {
             ]
             environment = [
                 {
-                    "name": "DB_HOST",
-                    "value": "${aws_db_instance.apollo_test_db.endpoint}"
+                    "name": "DB_ENDPOINT",
+                    "value": var.DB_ENDPOINT
                 },
                 {
                     "name": "DB_NAME",

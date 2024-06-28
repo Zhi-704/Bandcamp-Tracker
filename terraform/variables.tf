@@ -50,6 +50,10 @@ variable "DB_SCHEMA" {
     type=string
 }
 
+variable "DB_ENDPOINT" {
+    type=string
+}
+
 variable "ECR_PIPELINE" {
     type=string
 }

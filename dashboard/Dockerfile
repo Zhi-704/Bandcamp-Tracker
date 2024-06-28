@@ -15,6 +15,9 @@ COPY charts.py .
 COPY database.py .
 COPY tracker.py .
 
+COPY Apollo.png .
+COPY Apollo.svg .
+
 EXPOSE 8501
 
 CMD ["streamlit", "run", "tracker.py", "--server.port=8501"]

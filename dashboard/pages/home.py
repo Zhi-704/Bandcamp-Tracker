@@ -15,6 +15,15 @@ def show_home():
     col = st.columns(2)
     with col[0]:
         st.image('Apollo.png', use_column_width="auto")
+
+        hide_img_fs = """
+                    <style>
+                    button[title="View fullscreen"]{
+                        visibility: hidden;}
+                    </style>
+                    """
+
+        st.markdown(hide_img_fs, unsafe_allow_html=True)
     with col[1]:
         st.header("Welcome to Apollo!")
         st.subheader("The Bandcamp Sales Tracker")

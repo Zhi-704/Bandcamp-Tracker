@@ -69,7 +69,8 @@ def test_get_or_insert_artist_new(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.side_effect = [None, [2]]
-    artist_id = get_or_insert_artist(mock_cursor, "new_artist_name", "new_artist_url")
+    artist_id = get_or_insert_artist(
+        mock_cursor, "new_artist_name", "new_artist_url")
     assert artist_id == 2
     mock_cursor.execute.assert_called_with(
         "INSERT INTO artist(name, url) VALUES (%s, %s) RETURNING artist_id",
@@ -86,7 +87,8 @@ def test_get_or_insert_country_existing(mock_get_cursor):
     country_id = get_or_insert_country(mock_cursor, "country_name")
     assert country_id == 1
     mock_cursor.execute.assert_called_with(
-        "SELECT country_id FROM country WHERE country.name = %s", ("country_name",)
+        "SELECT country_id FROM country WHERE country.name = %s", (
+            "country_name",)
     )
 
 
@@ -124,7 +126,8 @@ def test_get_or_insert_album_new(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.side_effect = [None, [2]]
-    album_id = get_or_insert_album(mock_cursor, "new_album_title", 1, "new_album_url")
+    album_id = get_or_insert_album(
+        mock_cursor, "new_album_title", 1, "new_album_url")
     assert album_id == 2
     mock_cursor.execute.assert_called_with(
         "INSERT INTO album(title, artist_id, url) VALUES (%s, %s, %s) RETURNING album_id",
@@ -138,7 +141,8 @@ def test_get_or_insert_track_or_single_existing(mock_get_cursor):
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
     mock_cursor.fetchone.return_value = [1]
-    track_id = get_or_insert_track_or_single(mock_cursor, "song_title", 1, "song_url")
+    track_id = get_or_insert_track_or_single(
+        mock_cursor, "song_title", 1, "song_url")
     assert track_id == 1
     mock_cursor.execute.assert_called_with(
         "SELECT track_id FROM track WHERE track.title = %s\
@@ -174,11 +178,12 @@ def test_get_or_insert_tags_and_assignments_new_album(mock_get_cursor):
         call("SELECT tag_id FROM tag WHERE name = %s", ("new_tag",)),
         call("INSERT INTO tag(name) VALUES (%s) RETURNING tag_id", ("new_tag",)),
         call(
-            "SELECT album_tag_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
+            "SELECT album_genre_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
             (1, 1),
         ),
         call(
-            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (1, 1)
+            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (
+                1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
@@ -194,11 +199,12 @@ def test_get_or_insert_tags_and_assignments_existing_album(mock_get_cursor):
     calls = [
         call("SELECT tag_id FROM tag WHERE name = %s", ("existing_tag",)),
         call(
-            "SELECT album_tag_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
+            "SELECT album_genre_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
             (1, 1),
         ),
         call(
-            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (1, 1)
+            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)", (
+                1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
@@ -215,11 +221,12 @@ def test_get_or_insert_tags_and_assignments_new_track(mock_get_cursor):
         call("SELECT tag_id FROM tag WHERE name = %s", ("new_tag",)),
         call("INSERT INTO tag(name) VALUES (%s) RETURNING tag_id", ("new_tag",)),
         call(
-            "SELECT track_tag_assignment_id from album_tag_assignment WHERE track_id = %s and tag_id = %s",
+            "SELECT track_tag_assignment_id from track_tag_assignment WHERE track_id = %s and tag_id = %s",
             (1, 1),
         ),
         call(
-            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (1, 1)
+            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (
+                1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
@@ -235,11 +242,12 @@ def test_get_or_insert_tags_and_assignments_existing_track(mock_get_cursor):
     calls = [
         call("SELECT tag_id FROM tag WHERE name = %s", ("existing_tag",)),
         call(
-            "SELECT track_tag_assignment_id from album_tag_assignment WHERE track_id = %s and tag_id = %s",
+            "SELECT track_tag_assignment_id from track_tag_assignment WHERE track_id = %s and tag_id = %s",
             (1, 1),
         ),
         call(
-            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (1, 1)
+            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)", (
+                1, 1)
         ),
     ]
     mock_cursor.execute.assert_has_calls(calls)
@@ -250,7 +258,8 @@ def test_insert_album_or_track_purchase_album(mock_get_cursor):
     """Test case for insert_album_or_track_purchase with album purchase."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    insert_album_or_track_purchase(mock_cursor, "timestamp", 10.0, 1, album_id=1)
+    insert_album_or_track_purchase(
+        mock_cursor, "timestamp", 10.0, 1, album_id=1)
     mock_cursor.execute.assert_called_with(
         "INSERT INTO album_purchase(album_id, timestamp, amount_usd, country_id)\
                 VALUES (%s, %s, %s, %s)",
@@ -263,7 +272,8 @@ def test_insert_album_or_track_purchase_track(mock_get_cursor):
     """Test case for insert_album_or_track_purchase with track purchase."""
     mock_cursor = MagicMock()
     mock_get_cursor.return_value = mock_cursor
-    insert_album_or_track_purchase(mock_cursor, "timestamp", 10.0, 1, track_id=1)
+    insert_album_or_track_purchase(
+        mock_cursor, "timestamp", 10.0, 1, track_id=1)
     mock_cursor.execute.assert_called_with(
         "INSERT INTO track_purchase(track_id, timestamp, amount_usd, country_id)\
                 VALUES (%s, %s, %s, %s)",

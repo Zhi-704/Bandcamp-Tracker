@@ -16,7 +16,6 @@ Below is a list of the different pages on the dashboard:
 - `Tags` shows top tags and lets you go more in depth to compare tags with each other and see how they are performing.
 
 
-
 ## 📐 Architecture Diagram Explanation
 Below is the snapshot which includes the relevant **AWS services** used in this directory from the Architecture Diagram at the root directory.
 

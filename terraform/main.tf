@@ -57,28 +57,6 @@ resource "aws_db_instance" "apollo_test_db" {
     skip_final_snapshot = true
 }
 
-
-## Pipeline
-
-resource "aws_ecr_repository" "apollo_test_ecr_pipeline" {
-    name = var.ECR_PIPELINE
-    image_tag_mutability = "MUTABLE" 
-}
-
-resource "null_resource" "dockerise_pipeline" {
-  depends_on = [aws_ecr_repository.apollo_test_ecr_pipeline]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url};
-      cd ../pipeline && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest .;
-      cd ../pipeline && docker tag apollo_test_ecr_pipeline:latest ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
-      cd ../pipeline && docker push ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
-    EOT
-  }
-}
-
-
 ## Dashboard
 
 resource "aws_ecr_repository" "apollo_test_ecr_dashboard" {
@@ -215,6 +193,64 @@ resource "aws_ecs_service" "dashboard_service" {
     }
 }
 
+
+## Setting up permissions
+
+variable "pdf_lambda_name" {
+    default =  "c11-apollo-tf-test-pdf"
+}
+
+variable "notifications_lambda_name" {
+    default =  "c11-apollo-tf-test-notifications"
+}
+
+variable "pipeline_lambda_name" {
+    default =  "c11-apollo-tf-test-pipeline"
+}
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
+
+resource "aws_iam_role" "c11-apollo-tf-test-pdf-role" {
+  name               = "c11-apollo-tf-test-pdf-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role" "c11-apollo-tf-test-notification-role" {
+  name               = "c11-apollo-tf-test-notification-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role" "c11-apollo-tf-test-pipeline-role" {
+  name               = "c11-apollo-tf-test-pipeline-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+
 ## PDF
 
 resource "aws_ecr_repository" "apollo_test_ecr_pdf" {
@@ -234,6 +270,31 @@ resource "null_resource" "dockerise_pdf" {
     EOT
   }
 }
+resource "aws_lambda_function" "c11-apollo-tf-lambda-pdf" {
+    function_name = var.pdf_lambda_name
+    role = aws_iam_role.c11-apollo-tf-test-pdf-role.arn
+    package_type = "Image"
+    image_uri = "${aws_ecr_repository.apollo_test_ecr_pdf.repository_url}:latest"
+    architectures = ["x86_64"]
+    environment {
+      variables = {
+        ACCESS_KEY = var.ACCESS_KEY
+        CSS_PATH = var.CSS_PATH
+        DB_ENDPOINT = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_HOST = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_NAME = var.DB_NAME
+        DB_PASSWORD = var.DB_PASSWORD
+        DB_PASS = var.DB_PASSWORD
+        DB_PORT = var.DB_PORT
+        DB_USER = var.DB_USER
+        FILENAME = var.FILENAME
+        SECRET_ACCESS_KEY = var.SECRET_ACCESS_KEY
+        SES_SENDER = var.SES_SENDER
+        
+      }
+    }
+}
+
 
 ## Notifications
 
@@ -253,4 +314,181 @@ resource "null_resource" "dockerise_notifications" {
       cd ../notifications && docker push ${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest;
     EOT
   }
+}
+
+resource "aws_lambda_function" "c11-apollo-tf-lambda-notifications" {
+    function_name = var.notifications_lambda_name
+    role = aws_iam_role.c11-apollo-tf-test-notification-role.arn
+    package_type = "Image"
+    image_uri = "${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest"
+    architectures = ["x86_64"]
+    environment {
+      variables = {
+        ACCESS_KEY = var.ACCESS_KEY
+        DB_ENDPOINT = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_NAME = var.DB_NAME
+        DB_PASSWORD = var.DB_PASSWORD
+        DB_PORT = var.DB_PORT
+        DB_USER = var.DB_USER
+        SECRET_ACCESS_KEY = var.SECRET_ACCESS_KEY
+      }
+    }
+}
+
+
+## Pipeline
+
+resource "aws_ecr_repository" "apollo_test_ecr_pipeline" {
+    name = var.ECR_PIPELINE
+    image_tag_mutability = "MUTABLE" 
+}
+
+resource "null_resource" "dockerise_pipeline" {
+  depends_on = [aws_ecr_repository.apollo_test_ecr_pipeline]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url};
+      cd ../pipeline && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest .;
+      cd ../pipeline && docker tag apollo_test_ecr_pipeline:latest ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
+      cd ../pipeline && docker push ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
+    EOT
+  }
+}
+
+
+resource "aws_lambda_function" "c11-apollo-tf-lambda-pipeline" {
+    function_name = var.pipeline_lambda_name
+    role = aws_iam_role.c11-apollo-tf-test-pipeline-role.arn
+    package_type = "Image"
+    image_uri = "${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest"
+    architectures = ["x86_64"]
+    environment {
+      variables = {
+        DB_HOST = "${aws_db_instance.apollo_test_db.endpoint}"
+        DB_NAME = var.DB_NAME
+        DB_PASS = var.DB_PASSWORD
+        DB_PORT = var.DB_PORT
+        DB_USER = var.DB_USER
+      }
+    }
+}
+
+# Generic policy for event scheduler
+data "aws_iam_policy_document" "scheduler_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions  = ["sts:AssumeRole"]
+
+  }
+}
+
+# Creates a generic role for event scheduler
+resource "aws_iam_role" "c11-apollo-test-tf-schedule-pipeline-role" {
+  name               = "c11-apollo-test-tf-schedule-pipeline-role"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
+}
+resource "aws_iam_role" "c11-apollo-test-tf-schedule-pdf-role" {
+  name               = "c11-apollo-test-tf-schedule-pdf-role"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
+}
+resource "aws_iam_role" "c11-apollo-test-tf-schedule-notification-role" {
+  name               = "c11-apollo-test-tf-schedule-notification-role"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
+}
+
+# Attaches custom policy to role for running the lambdas
+resource "aws_iam_role_policy" "pipeline_execution_policy" {
+  name = "c11-apollo-pipeline-scheduler-policy"
+  role = aws_iam_role.c11-apollo-test-tf-schedule-pipeline-role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [  
+      {
+        Effect = "Allow",
+        Action = [
+          "lambda:InvokeFunction"
+        ],
+        Resource = "${aws_lambda_function.c11-apollo-tf-lambda-pipeline.arn}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "notification_execution_policy" {
+  name = "c11-apollo-notification-scheduler-policy"
+  role = aws_iam_role.c11-apollo-test-tf-schedule-notification-role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [  
+      {
+        Effect = "Allow",
+        Action = [
+          "lambda:InvokeFunction"
+        ],
+        Resource = "${aws_lambda_function.c11-apollo-tf-lambda-notifications.arn}"
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy" "pdf_execution_policy" {
+  name = "c11-apollo-pdf-scheduler-policy"
+  role = aws_iam_role.c11-apollo-test-tf-schedule-pdf-role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [  
+      {
+        Effect = "Allow",
+        Action = [
+          "lambda:InvokeFunction"
+        ],
+        Resource = "${aws_lambda_function.c11-apollo-tf-lambda-pdf.arn}"
+      }
+    ]
+  })
+}
+
+resource "aws_scheduler_schedule" "lambda-schedule-pipeline" {
+    name = "c11-apollo-tf-schedule-pipeline"
+    flexible_time_window {
+      mode = "OFF"
+    }
+    schedule_expression = "cron(*/2 * * * ? *)"
+    target {
+        arn=aws_lambda_function.c11-apollo-tf-lambda-pipeline.arn
+        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-pipeline-role.arn
+    }
+}
+
+resource "aws_scheduler_schedule" "lambda-schedule-pdf" {
+    name = "c11-apollo-tf-schedule-pdf"
+    flexible_time_window {
+      mode = "OFF"
+    }
+    schedule_expression = "cron(0 9 * * ? *)"
+    target {
+        arn=aws_lambda_function.c11-apollo-tf-lambda-pdf.arn
+        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-pdf-role.arn
+    }
+}
+
+resource "aws_scheduler_schedule" "lambda-schedule-notification" {
+    name = "c11-apollo-tf-schedule-notification"
+    flexible_time_window {
+      mode = "OFF"
+    }
+    schedule_expression = "cron(0 */4 * * ? *)"
+    target {
+        arn=aws_lambda_function.c11-apollo-tf-lambda-notifications.arn
+        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-notification-role.arn
+    }
 }

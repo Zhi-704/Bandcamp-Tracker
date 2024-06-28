@@ -43,7 +43,7 @@ variable "DB_IDENTIFIER" {
 }
 
 variable "DB_PORT" {
-    type=number
+    type=string
 }
 
 variable "DB_SCHEMA" {
@@ -91,5 +91,21 @@ variable "C11_PUBLIC_SUBNET_2" {
 }
 
 variable "C11_PUBLIC_SUBNET_3" {
+    type=string
+}
+
+variable "CSS_PATH" {
+    type=string
+}
+
+variable "DB_USER" {
+    type=string
+}
+
+variable "FILENAME" {
+    type=string
+}
+
+variable "SES_SENDER" {
     type=string
 }

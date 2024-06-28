@@ -52,7 +52,7 @@ def get_artist_track_sales_bar_chart(artists: DataFrame) -> alt.Chart:
 
     return alt.Chart(artists).mark_bar(color=BANDCAMP_BLUE).encode(
         x=alt.X("name:N", title="Artist", axis=alt.Axis(
-            labelAngle=-45)).sort("-y"),
+            labelAngle=-45)),
         y=alt.Y("track_sales:Q", title="Tracks sold")
     )
 
@@ -63,7 +63,7 @@ def get_artist_album_sales_bar_chart(artists: DataFrame) -> alt.Chart:
 
     return alt.Chart(artists).mark_bar(color=BANDCAMP_BLUE).encode(
         x=alt.X("name:N", title="Artist", axis=alt.Axis(
-            labelAngle=-45)).sort("-y"),
+            labelAngle=-45)),
         y=alt.Y("album_sales:Q", title="Albums sold")
 
     )

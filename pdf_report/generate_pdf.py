@@ -90,7 +90,9 @@ def create_html_chart(chart: alt.Chart) -> str:
     return f"data:image/png;base64,{data}"
 
 
-if __name__ == "__main__":
+def create_pdf() -> None:
+    """Main function for generating the PDF."""
+
     load_dotenv()
 
     connection = get_connection()
@@ -138,4 +140,9 @@ if __name__ == "__main__":
 </html>
 """
 
-    convert_result = convert_html_to_pdf(html_report, ENV["FILENAME"])
+    convert_html_to_pdf(html_report, ENV["FILENAME"])
+
+
+if __name__ == "__main__":
+
+    create_pdf()

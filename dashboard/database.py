@@ -231,9 +231,9 @@ def get_all_album_titles(_conn: Connection):
 
 @st.cache_data(ttl="1hr")
 def get_track_sales_by_artist(_conn: Connection, artist: str):
-    """Returns all album info for a given album."""
+    """Returns all track info for a given artist."""
 
-    print(f"Counting album sales for artist {artist}...")
+    print(f"Counting track sales for artist {artist}...")
 
     query = """
             SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales

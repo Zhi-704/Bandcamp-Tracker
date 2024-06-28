@@ -22,7 +22,10 @@ def show_artists():
     """Displays the page showing visualisations relating to artists."""
     st.title("Artists")
     conn = get_connection()
-    pop_artists = get_popular_artists(conn)
+    timeframe = st.radio(label="Filter by sale timeframe", options=[
+        '1 day', '1 week', '1 month', "1 year"], horizontal=True)
+
+    pop_artists = get_popular_artists(conn, timeframe)
     st.header("Top Artists")
     st.write("Click on the bar to be taken to the relevant page on Bandcamp")
 

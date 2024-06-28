@@ -23,64 +23,63 @@ def get_connection() -> Connection:
 
 
 @st.cache_data(ttl="1hr")
-def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
-    """Returns the N most sold tracks in the database."""
+def get_popular_tracks(_conn: Connection, timeframe: str) -> pd.DataFrame:
+    """Returns the 5 most sold tracks in the database."""
 
     print("Collating most popular tracks...")
-
-    query = """
+    query = f"""
         SELECT T.title, A.name, COUNT(track_purchase_id) AS copies_sold, T.url as url
-        FROM track_purchase AS PT
+        FROM track_purchase AS TP
         JOIN track AS T
         USING(track_id)
         JOIN artist as A
         USING(artist_id)
+        WHERE CURRENT_TIMESTAMP < TP.timestamp + INTERVAL '{timeframe}'
         GROUP BY T.title, A.name, T.url
         ORDER BY copies_sold DESC
-        LIMIT %s
+        LIMIT 5
         ;
         """
-
     with _conn.cursor() as cur:
-        cur.execute(query, (n,))
+        cur.execute(query)
         data = cur.fetchall()
-
     return pd.DataFrame(data)
 
 
 @st.cache_data(ttl="1hr")
-def get_popular_albums(_conn: Connection, n: int = 5) -> pd.DataFrame:
-    """Returns the N most sold albums in the database."""
+def get_popular_albums(_conn: Connection, timeframe: str) -> pd.DataFrame:
+    """Returns the 5 most sold albums in the database."""
 
     print("Collating most popular albums...")
 
-    query = """
+    query = f"""
         SELECT AB.title, AT.name, COUNT(*) AS copies_sold, AB.url as url
-        FROM album_purchase AS PA
+        FROM album_purchase AS AP
         JOIN album AS AB
         USING(album_id)
         JOIN artist as AT
         USING(artist_id)
+        WHERE CURRENT_TIMESTAMP < AP.timestamp + INTERVAL '{timeframe}'
         GROUP BY AB.title, AT.name, AB.url
         ORDER BY copies_sold DESC
-        LIMIT %s
+        LIMIT 5
         ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (n,))
+        cur.execute(query)
         data = cur.fetchall()
 
     return pd.DataFrame(data)
 
 
 @st.cache_data(ttl="1hr")
-def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
-    """Returns the N artists with the most sales in the database."""
+def get_popular_artists(_conn: Connection, timeframe) -> pd.DataFrame:
+    """Returns the 5 artists with the most sales in the database."""
 
     print("Collating most popular artists...")
 
-    query = """
+    query = f"""
             SELECT A.artist_id, A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales, COUNT(DISTINCT AP.album_purchase_id) + COUNT(DISTINCT TP.track_purchase_id) AS total_sales, A.url as artist_url
             FROM
                 artist AS A
@@ -92,11 +91,13 @@ def get_popular_artists(_conn: Connection, n: int = 5) -> pd.DataFrame:
                 track AS T ON A.artist_id = T.artist_id
             LEFT JOIN
                 track_purchase AS TP ON T.track_id = TP.track_id
+            WHERE
+                CURRENT_TIMESTAMP < AP.timestamp + INTERVAL '{timeframe}'
             GROUP BY
                 A.artist_id, A.name
             ORDER BY
                 total_sales DESC
-            LIMIT %s;
+            LIMIT 5;
         ;
         """
 

@@ -12,7 +12,9 @@ def show_tags():
     conn = get_connection()
 
     all_tags = get_all_tags(conn)
-    tags = get_sales_by_tag(conn)
+    timeframe = st.radio(label="Filter by sale timeframe", options=[
+        '1 day', '1 week', '1 month', "1 year"], horizontal=True)
+    tags = get_sales_by_tag(conn, timeframe)
 
     st.subheader("Top Tags")
     st.altair_chart(get_most_popular_tags_chart(

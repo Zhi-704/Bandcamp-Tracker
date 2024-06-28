@@ -52,7 +52,7 @@ def get_artist_track_sales_bar_chart(artists: DataFrame) -> alt.Chart:
 
     return alt.Chart(artists).mark_bar(color=BANDCAMP_BLUE).encode(
         x=alt.X("name:N", title="Artist", axis=alt.Axis(
-            labelAngle=-45)).sort("-y"),
+            labelAngle=-45)),
         y=alt.Y("track_sales:Q", title="Tracks sold")
     )
 
@@ -63,7 +63,7 @@ def get_artist_album_sales_bar_chart(artists: DataFrame) -> alt.Chart:
 
     return alt.Chart(artists).mark_bar(color=BANDCAMP_BLUE).encode(
         x=alt.X("name:N", title="Artist", axis=alt.Axis(
-            labelAngle=-45)).sort("-y"),
+            labelAngle=-45)),
         y=alt.Y("album_sales:Q", title="Albums sold")
 
     )
@@ -85,19 +85,18 @@ def create_choropleth_map(locations):
 
 
 @st.cache_data
-def get_albums_sales_line_graph(chosen_album) -> alt.Chart:
-    """Returns a line graph of sales over time for a chosen album."""
-    return alt.Chart(chosen_album).mark_line().encode(
+def get_artist_sales_line_graph(chosen_artist) -> alt.Chart:
+    """Returns a line graph of sales over time for a chosen artist."""
+    return alt.Chart(chosen_artist).mark_line().encode(
         x=alt.X("timestamp:T"),
         y=alt.Y("sales:Q"),
-        color="name:N"
     ).interactive()
 
 
 @st.cache_data
-def get_tag_sales_line_graph(chosen_tag) -> alt.Chart:
-    """Returns a line graph of sales over time for a chosen tag"""
-    return alt.Chart(chosen_tag).mark_line(point=True, color=BANDCAMP_BLUE).encode(
+def get_sales_line_graph(chosen_data) -> alt.Chart:
+    """Returns a line graph of sales over time for a chosen album/track/tag"""
+    return alt.Chart(chosen_data).mark_line(point=True, color=BANDCAMP_BLUE).encode(
         x=alt.X("hour:T"),
         y=alt.Y("sales:Q")
     ).interactive()

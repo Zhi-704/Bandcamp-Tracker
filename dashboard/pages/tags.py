@@ -3,7 +3,7 @@
 import streamlit as st
 
 from database import get_connection, get_album_sales_by_tag, get_track_sales_by_tag, get_sales_by_tag, get_all_tags
-from charts import get_tag_sales_line_graph, get_most_popular_tags_chart
+from charts import get_sales_line_graph, get_most_popular_tags_chart
 
 
 def show_tags():
@@ -12,7 +12,9 @@ def show_tags():
     conn = get_connection()
 
     all_tags = get_all_tags(conn)
-    tags = get_sales_by_tag(conn)
+    timeframe = st.radio(label="Filter by sale timeframe", options=[
+        '1 day', '1 week', '1 month', "1 year"], horizontal=True)
+    tags = get_sales_by_tag(conn, timeframe)
 
     st.subheader("Top Tags")
     st.altair_chart(get_most_popular_tags_chart(
@@ -29,7 +31,7 @@ def show_tags():
 
     with col[0]:
         st.subheader("Album sales")
-        st.altair_chart(get_tag_sales_line_graph(chosen_tag_album_data))
+        st.altair_chart(get_sales_line_graph(chosen_tag_album_data))
     with col[1]:
         st.subheader("Track sales")
-        st.altair_chart(get_tag_sales_line_graph(chosen_tag_track_data))
+        st.altair_chart(get_sales_line_graph(chosen_tag_track_data))

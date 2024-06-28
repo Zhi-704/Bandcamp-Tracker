@@ -130,14 +130,18 @@ def get_or_insert_track_or_single(
     return cursor.fetchone()[0]
 
 
-def get_or_insert_tags(
+def get_or_insert_tags_and_assignments(
     cursor: DBCursor,
     tag_name: str,
     album_id: Optional[int] = None,
     track_id: Optional[int] = None,
 ) -> None:
-    """Adds the tag to the tag table, returns the tag_id, inserts row in album_tag_assignment table,
-    otherwise gets the tag_id and then inserts row in assignment table."""
+    """
+    Adds a tag to the tag table and returns the tag_id if it doesn't already exist,
+    otherwise simply returns tag_id from table.
+    Then checks if the album-tag or track-tag assignment exists in the database,
+    inserts it otherwise.
+    """
 
     cursor.execute("SELECT tag_id FROM tag WHERE name = %s", (tag_name,))
     tag_id = cursor.fetchone()
@@ -148,16 +152,30 @@ def get_or_insert_tags(
         tag_id = cursor.fetchone()[0]
     else:
         tag_id = tag_id[0]
+
     if album_id:
+
         cursor.execute(
-            "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)",
-            (tag_id, album_id),
+            "SELECT album_genre_assignment_id from album_tag_assignment WHERE album_id = %s and tag_id = %s",
+            (album_id, tag_id),
         )
+        ata_id = cursor.fetchone()
+        if not ata_id:
+            cursor.execute(
+                "INSERT INTO album_tag_assignment(tag_id, album_id) VALUES (%s, %s)",
+                (tag_id, album_id),
+            )
     if track_id:
         cursor.execute(
-            "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)",
-            (tag_id, track_id),
+            "SELECT track_tag_assignment_id from track_tag_assignment WHERE track_id = %s and tag_id = %s",
+            (track_id, tag_id),
         )
+        tta_id = cursor.fetchone()
+        if not tta_id:
+            cursor.execute(
+                "INSERT INTO track_tag_assignment(tag_id, track_id) VALUES (%s, %s)",
+                (tag_id, track_id),
+            )
 
 
 def insert_album_or_track_purchase(
@@ -204,7 +222,7 @@ def insert_album_sale(cursor: DBCursor, album_sale: Dict[str, Any]) -> None:
     )
     for tag in album_sale["album_tags"]:
         if tag:
-            get_or_insert_tags(cursor, tag, album_id)
+            get_or_insert_tags_and_assignments(cursor, tag, album_id)
 
     insert_album_or_track_purchase(
         cursor,
@@ -240,7 +258,7 @@ def insert_track_sale(cursor: DBCursor, track_sale: Dict[str, Any]) -> None:
 
     for tag in track_sale["track_tags"]:
         if tag:
-            get_or_insert_tags(cursor, tag, track_id=track_id)
+            get_or_insert_tags_and_assignments(cursor, tag, track_id=track_id)
 
     insert_album_or_track_purchase(
         cursor,
@@ -272,7 +290,7 @@ def insert_single_sale(cursor: DBCursor, single_sale: Dict[str, Any]) -> None:
 
     for tag in single_sale["track_tags"]:
         if tag:
-            get_or_insert_tags(cursor, tag, track_id=track_id)
+            get_or_insert_tags_and_assignments(cursor, tag, track_id=track_id)
 
     insert_album_or_track_purchase(
         cursor,

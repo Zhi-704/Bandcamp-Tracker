@@ -3,9 +3,9 @@ gatherUsageStats = false
 
 [theme]
 base = "light"
-# Bandcamp blue
 backgroundColor = "#fff7e2"
 secondaryBackgroundColor = 'fff0c9'
+# Bandcamp blue
 primaryColor = "#3c9aaa"
 textColor="#3c9aaa"
 [client]

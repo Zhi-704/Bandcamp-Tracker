@@ -29,7 +29,7 @@ def get_popular_tracks(_conn: Connection, n: int = 5) -> pd.DataFrame:
     print("Collating most popular tracks...")
 
     query = """
-        SELECT T.title, A.name, COUNT(*) AS copies_sold, T.url as url
+        SELECT T.title, A.name, COUNT(track_purchase_id) AS copies_sold, T.url as url
         FROM track_purchase AS PT
         JOIN track AS T
         USING(track_id)
@@ -230,27 +230,28 @@ def get_all_album_titles(_conn: Connection):
 
 
 @st.cache_data(ttl="1hr")
-def get_album_sales_by_album(_conn: Connection, album_name: str):
-    """Returns all album info for a given album."""
+def get_track_sales_by_artist(_conn: Connection, artist: str):
+    """Returns all track info for a given artist."""
 
-    print(f"Counting album sales for album {album_name}...")
+    print(f"Counting track sales for artist {artist}...")
 
     query = """
-        SELECT A.title, AT.name, AP.timestamp
-        FROM album_purchase AS AP
-        JOIN album AS A
-        USING (album_id)
-        JOIN artist as AT
-        USING (artist_id)
-        WHERE A.title = %s
-        ;
+            SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
+            FROM artist AS A
+            INNER JOIN track as T
+            USING(artist_id)
+            INNER JOIN track_purchase as TP
+            USING(track_id)
+            WHERE A.name = %s
+            GROUP BY hour
+            ;
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (album_name, ))
+        cur.execute(query, (artist, ))
         data = cur.fetchall()
 
-    return data
+    return pd.DataFrame(data)
 
 
 @st.cache_data(ttl="1hr")
@@ -308,13 +309,13 @@ def get_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     print(f"Counting tag sales for tag {tag_name}...")
 
     query = """
-        SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id)  as sales
+        SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
         FROM tag AS T
         INNER JOIN track_tag_assignment as TTA
         USING(tag_id)
         INNER JOIN track_purchase as TP
         USING(track_id)
-        WHERE T.name = %s
+        WHERE T.name = %s 
         GROUP BY hour
         ;
         """

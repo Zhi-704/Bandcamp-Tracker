@@ -1,5 +1,7 @@
 # PDF Report
 
+
+
 ## 🔎 Overview
 
 ### 📝 Description
@@ -13,6 +15,7 @@ Below is an **example** of how the PDF will look like.
 1. The subscriber is **greeted** by a welcome message at the top.
 2. Bar charts showing the **top 5 artists, tags and tracks** worldwide ranked by the **total revenue** they have made in USD.
 3. Tables showing the **top 5 artists, tags and tracks** for a specific location ranked by the **total number of sales** they have made. The top 5 countries shown are ranked and picked based on the total revenue that the country has made in USD.
+
 
 ## 📐 Architecture Diagram Explanation
 Below is the snapshot which includes the relevant **AWS services** used in this directory from the Architecture Diagram at the root directory.

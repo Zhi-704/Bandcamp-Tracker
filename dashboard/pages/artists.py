@@ -8,7 +8,8 @@ from database import (
     get_all_artists,
     get_sales,
     get_sales_for_chosen_artists,
-    get_track_sales_by_artist
+    get_track_sales_by_artist,
+    get_album_sales_by_artist
 )
 from charts import (
     get_artist_album_sales_bar_chart,
@@ -55,6 +56,12 @@ def show_artists():
 
     one_artist = st.selectbox("Choose artist", all_artists)
     chosen_artists_track_data = get_track_sales_by_artist(conn, one_artist)
-
+    chosen_artists_album_data = get_album_sales_by_artist(conn, one_artist)
+    cols = st.columns(2)
     if one_artist:
-        st.altair_chart(get_sales_line_graph(chosen_artists_track_data))
+        with cols[0]:
+            st.subheader("Track sales")
+            st.altair_chart(get_sales_line_graph(chosen_artists_track_data))
+        with cols[1]:
+            st.subheader("Album sales")
+            st.altair_chart(get_sales_line_graph(chosen_artists_album_data))

@@ -102,7 +102,7 @@ def get_popular_artists(_conn: Connection, timeframe) -> pd.DataFrame:
         """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (n,))
+        cur.execute(query)
         data = cur.fetchall()
 
     return pd.DataFrame(data)
@@ -127,12 +127,12 @@ def get_all_artists(_conn: Connection):
 
 
 @st.cache_data(ttl="1hr")
-def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
-    """Returns the top n genre/tag by sales."""
+def get_sales_by_tag(_conn: Connection, timeframe: str) -> pd.DataFrame:
+    """Returns the top 5 genre/tag by sales."""
 
     print("Counting sales by tag...")
 
-    query = """
+    query = f"""
         SELECT t.name, SUM(album_table.album_total + track_table.track_total) AS total_sales
     FROM tag t
     INNER JOIN (
@@ -140,23 +140,25 @@ def get_sales_by_tag(_conn: Connection, n: int = 5) -> pd.DataFrame:
         FROM album_tag_assignment ata
         INNER JOIN album_purchase ap
         ON ata.album_id = ap.album_id
+        WHERE CURRENT_TIMESTAMP < AP.timestamp + INTERVAL '{timeframe}'
         GROUP BY ata.tag_id)
         album_table ON album_table.tag_id = t.tag_id
     INNER JOIN (
         SELECT tta.tag_id, COUNT(DISTINCT tp.track_purchase_id) as track_total
         FROM track_tag_assignment tta
-        INNER JOIN track_purchase tp 
+        INNER JOIN track_purchase tp
         ON tta.track_id = tp.track_id
-        GROUP BY tta.tag_id) 
+        WHERE CURRENT_TIMESTAMP < TP.timestamp + INTERVAL '{timeframe}'
+        GROUP BY tta.tag_id)
         track_table ON track_table.tag_id = t.tag_id
     GROUP BY t.tag_id
     ORDER BY total_sales DESC
-    LIMIT %s
+    LIMIT 5
     ;
     """
 
     with _conn.cursor() as cur:
-        cur.execute(query, (n, ))
+        cur.execute(query)
         data = cur.fetchall()
 
     return pd.DataFrame(data)
@@ -243,6 +245,31 @@ def get_track_sales_by_artist(_conn: Connection, artist: str):
             USING(artist_id)
             INNER JOIN track_purchase as TP
             USING(track_id)
+            WHERE A.name = %s
+            GROUP BY hour
+            ;
+        """
+
+    with _conn.cursor() as cur:
+        cur.execute(query, (artist, ))
+        data = cur.fetchall()
+
+    return pd.DataFrame(data)
+
+
+@st.cache_data(ttl="1hr")
+def get_album_sales_by_artist(_conn: Connection, artist: str):
+    """Returns all album info for a given artist."""
+
+    print(f"Counting album sales for artist {artist}...")
+
+    query = """
+            SELECT DATE_TRUNC('hour', AP.timestamp) AS hour, COUNT(DISTINCT AP.album_purchase_id) as sales
+            FROM artist AS A
+            INNER JOIN album as AB
+            USING(artist_id)
+            INNER JOIN album_purchase as AP
+            USING(album_id)
             WHERE A.name = %s
             GROUP BY hour
             ;

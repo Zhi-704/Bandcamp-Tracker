@@ -161,5 +161,4 @@ def send_all_emails() -> None:
 
 if __name__ == "__main__":
 
-    load_dotenv()
     send_all_emails()

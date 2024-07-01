@@ -89,7 +89,7 @@ def send_email(
     <head></head>
     <body>
     <h1>Good morning, {recipient_name}!</h1>
-    <p>Please see the attached file for your daily generated Bandcamp sales report!</p>
+    <p>Please see the attached file for your daily generated Bandcamp sales report.</p>
     </body>
     </html>
     """
@@ -132,7 +132,7 @@ def send_all_emails() -> None:
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    sender = f"Sender Name <{ENV["SES_SENDER"]}>"
+    sender = f"Apollo Sales Tracker <{ENV["SES_SENDER"]}>"
 
     aws_access_key = str(ENV.get("ACCESS_KEY"))
     aws_secret_access_key = str(ENV.get("SECRET_ACCESS_KEY"))

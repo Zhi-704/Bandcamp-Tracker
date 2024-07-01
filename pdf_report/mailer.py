@@ -88,7 +88,7 @@ def send_email(
     <html>
     <head></head>
     <body>
-    <h1>Good morning, {recipient_name}!</h1>
+    <h1>Good morning, {recipient_name}.</h1>
     <p>Please see the attached file for your daily generated Bandcamp sales report.</p>
     </body>
     </html>

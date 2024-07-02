@@ -11,6 +11,7 @@ import pandas as pd
 @st.cache_resource
 def get_connection() -> Connection:
     """gets a connection"""
+
     print("getting a connection")
     return connect(
         port=ENV["DB_PORT"],
@@ -24,7 +25,8 @@ def get_connection() -> Connection:
 
 def check_connection(_conn: Connection) -> Connection:
     """Check if the connection is still alive, if not,
-        reestablishes and returns a connection."""
+    reestablishes and returns a connection."""
+
     try:
         with _conn.cursor() as cur:
             cur.execute("SELECT 1")
@@ -333,8 +335,7 @@ def get_all_tag_names(_conn: Connection) -> list[str]:
         """
 
     with _conn.cursor() as cur:
-        cur.execute(
-            query)
+        cur.execute(query)
         data = cur.fetchall()
 
     return pd.DataFrame(data)

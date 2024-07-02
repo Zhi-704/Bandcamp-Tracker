@@ -56,11 +56,10 @@ def show_subscriptions():
         border=True,
     ):
         st.header("Subscribe to emails")
-        if pdf:
-            name = st.text_input("Name")
 
         email = st.text_input("Email")
-
+        if pdf:
+            name = st.text_input("Name")
         if notifications:
             tags = st.multiselect(
                 "Choose which tag(s) you would like to subscribe to...",

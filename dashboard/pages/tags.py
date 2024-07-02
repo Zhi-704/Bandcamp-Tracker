@@ -22,16 +22,18 @@ def show_tags():
 
     st.subheader("Tag popularity over time")
     chosen_tag = st.selectbox(
-        "Choose which tag you would like to see...", all_tags)
+        "Choose which tag you would like to see...", all_tags, index=None, placeholder="Select...")
 
-    chosen_tag_album_data = get_album_sales_by_tag(conn, chosen_tag)
-    chosen_tag_track_data = get_track_sales_by_tag(conn, chosen_tag)
+    if chosen_tag:
 
-    col = st.columns(2)
+        chosen_tag_album_data = get_album_sales_by_tag(conn, chosen_tag)
+        chosen_tag_track_data = get_track_sales_by_tag(conn, chosen_tag)
 
-    with col[0]:
-        st.subheader("Album sales")
-        st.altair_chart(get_sales_line_graph(chosen_tag_album_data))
-    with col[1]:
-        st.subheader("Track sales")
-        st.altair_chart(get_sales_line_graph(chosen_tag_track_data))
+        col = st.columns(2)
+
+        with col[0]:
+            st.subheader("Album sales")
+            st.altair_chart(get_sales_line_graph(chosen_tag_album_data))
+        with col[1]:
+            st.subheader("Track sales")
+            st.altair_chart(get_sales_line_graph(chosen_tag_track_data))

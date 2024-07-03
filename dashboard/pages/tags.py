@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from database import get_connection, get_album_sales_by_tag, get_track_sales_by_tag, get_sales_by_tag, get_all_tags
+from database import get_connection, check_connection, get_album_sales_by_tag, get_track_sales_by_tag, get_sales_by_tag, get_all_tags
 from charts import get_sales_line_graph, get_most_popular_tags_chart
 
 
@@ -10,6 +10,7 @@ def show_tags():
     """Main function for tags page."""
     st.title("Tags")
     conn = get_connection()
+    conn = check_connection(conn)
 
     all_tags = get_all_tags(conn)
     timeframe = st.radio(label="Filter by sale timeframe", options=[

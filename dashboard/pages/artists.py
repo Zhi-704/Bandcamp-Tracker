@@ -4,6 +4,7 @@ import streamlit as st
 
 from database import (
     get_connection,
+    check_connection,
     get_popular_artists,
     get_all_artists,
     get_sales,
@@ -21,8 +22,12 @@ from charts import (
 
 def show_artists():
     """Displays the page showing visualisations relating to artists."""
+
     st.title("Artists")
+
     conn = get_connection()
+    conn = check_connection(conn)
+
     timeframe = st.radio(label="Filter by sale timeframe", options=[
         '1 day', '1 week', '1 month', "1 year"], horizontal=True)
 

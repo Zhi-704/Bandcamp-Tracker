@@ -10,9 +10,9 @@ import pandas as pd
 
 @st.cache_resource
 def get_connection() -> Connection:
-    """gets a connection"""
+    """Creates and returns a connection to the database."""
 
-    print("getting a connection")
+    print("Connecting to database...")
     return connect(
         port=ENV["DB_PORT"],
         dbname=ENV["DB_NAME"],

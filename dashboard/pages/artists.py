@@ -27,7 +27,7 @@ def show_artists():
         '1 day', '1 week', '1 month', "1 year"], horizontal=True)
 
     pop_artists = get_popular_artists(conn, timeframe)
-    st.header("Top Artists")
+    st.header("Top artists")
     st.write("Click on the bar to be taken to the relevant page on Bandcamp")
 
     st.altair_chart(
@@ -35,6 +35,9 @@ def show_artists():
     )
 
     all_artists = get_all_artists(conn)
+
+    st.header("Sales by artist")
+
     chosen_artists = st.multiselect(
         "Choose artists to compare their track vs. album sales",
         all_artists,
@@ -54,14 +57,22 @@ def show_artists():
             use_container_width=True,
         )
 
-    one_artist = st.selectbox("Choose artist", all_artists)
-    chosen_artists_track_data = get_track_sales_by_artist(conn, one_artist)
-    chosen_artists_album_data = get_album_sales_by_artist(conn, one_artist)
-    cols = st.columns(2)
+    st.header("Sales over time")
+
+    one_artist = st.selectbox("Choose artist", all_artists, index=None)
+
     if one_artist:
+
+        chosen_artists_track_data = get_track_sales_by_artist(conn, one_artist)
+        chosen_artists_album_data = get_album_sales_by_artist(conn, one_artist)
+
+        cols = st.columns(2)
+
         with cols[0]:
             st.subheader("Track sales")
-            st.altair_chart(get_sales_line_graph(chosen_artists_track_data))
+            st.altair_chart(get_sales_line_graph(
+                chosen_artists_track_data))
         with cols[1]:
             st.subheader("Album sales")
-            st.altair_chart(get_sales_line_graph(chosen_artists_album_data))
+            st.altair_chart(get_sales_line_graph(
+                chosen_artists_album_data))

@@ -16,7 +16,7 @@ def show_tags():
         '1 day', '1 week', '1 month', "1 year"], horizontal=True)
     tags = get_sales_by_tag(conn, timeframe)
 
-    st.subheader("Top Tags")
+    st.subheader("Top tags")
     st.altair_chart(get_most_popular_tags_chart(
         tags), use_container_width=True, )
 

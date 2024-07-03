@@ -97,6 +97,6 @@ def get_artist_sales_line_graph(chosen_artist) -> alt.Chart:
 def get_sales_line_graph(chosen_data) -> alt.Chart:
     """Returns a line graph of sales over time for a chosen album/track/tag"""
     return alt.Chart(chosen_data).mark_line(point=True, color=BANDCAMP_BLUE).encode(
-        x=alt.X("hour:T"),
-        y=alt.Y("sales:Q")
+        x=alt.X("hour:T", title="Time"),
+        y=alt.Y("sales:Q", title="Sales")
     ).interactive()

@@ -41,7 +41,7 @@ def show_artists():
     chosen_artists = st.multiselect(
         "Choose artists to compare their track vs. album sales",
         all_artists,
-        placeholder="Choose artists...",
+        placeholder="Select multiple artists...",
     )
     all_sales = get_sales(conn)
     chosen_artists_data = get_sales_for_chosen_artists(
@@ -59,7 +59,8 @@ def show_artists():
 
     st.header("Sales over time")
 
-    one_artist = st.selectbox("Choose artist", all_artists, index=None)
+    one_artist = st.selectbox("Choose artist to see their sales over time",
+                              all_artists, index=None, placeholder="Select artist...")
 
     if one_artist:
 

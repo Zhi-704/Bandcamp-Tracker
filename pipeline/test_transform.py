@@ -1,7 +1,7 @@
 """Tests for transform functions."""
 
-from transform import convert_unix_to_datetime, clean_data, transform_sales_data, clean_tags
 import pytest
+from transform import convert_unix_to_datetime, clean_data, transform_sales_data, clean_tags
 
 
 @pytest.mark.parametrize(

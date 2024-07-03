@@ -1,3 +1,5 @@
+"""Initialize page modules for the dashboard."""
+
 from pages.home import show_home
 from pages.artists import show_artists
 from pages.locations import show_locations

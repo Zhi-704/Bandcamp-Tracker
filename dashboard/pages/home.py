@@ -33,14 +33,14 @@ def show_home():
             you can also subscribe to receive email notifications!""")
     timeframe = st.radio(label="Filter by sale timeframe", options=[
         '1 day', '1 week', '1 month', "1 year"], horizontal=True)
-    st.subheader("Top Tracks")
+    st.header("Top tracks")
 
     st.write("Click on the bar to be taken to the relevant page on Bandcamp")
     tracks = database.get_popular_tracks(conn, timeframe=timeframe)
     st.altair_chart(charts.get_most_copies_sold_chart(
         tracks), use_container_width=True)
 
-    st.subheader("Top Albums")
+    st.header("Top albums")
     albums = database.get_popular_albums(conn, timeframe=timeframe)
 
     st.write("Click on the bar to be taken to the relevant page on Bandcamp")

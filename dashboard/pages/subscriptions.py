@@ -58,25 +58,28 @@ def show_subscriptions():
         border=True,
     ):
         st.header("Subscribe to emails")
+
+        email = st.text_input("Email")
         if pdf:
             name = st.text_input("Name")
-        if pdf and not name:
-            st.error("Missing field - you must enter a 'Name'")
-        email = st.text_input("Email")
-        if not email:
-            st.error("Missing field - you must enter an 'Email'")
-        if email and "@" not in email:
-            st.error("Invalid email")
-
         if notifications:
             tags = st.multiselect(
                 "Choose which tag(s) you would like to subscribe to...",
                 get_all_tags(conn),
                 placeholder="Select tag...",
             )
-            if not tags:
-                st.error("Missing field - you must choose at least one tag")
+
         submitted = st.form_submit_button()
+
+        if submitted:
+            if pdf and not name:
+                st.error("Missing field - you must enter a 'Name'")
+            if not email:
+                st.error("Missing field - you must enter an 'Email'")
+            if email and "@" not in email:
+                st.error("Invalid email")
+            if notifications and not tags:
+                st.error("Missing field - you must choose at least one tag")
 
     sns_client = boto3.client(
         "sns",

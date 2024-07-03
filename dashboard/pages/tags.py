@@ -2,7 +2,12 @@
 
 import streamlit as st
 
-from database import get_connection, get_album_sales_by_tag, get_track_sales_by_tag, get_sales_by_tag, get_all_tags
+from database import (
+    get_connection,
+    get_album_sales_by_tag,
+    get_track_sales_by_tag,
+    get_sales_by_tag,
+    get_all_tags)
 from charts import get_sales_line_graph, get_most_popular_tags_chart
 
 

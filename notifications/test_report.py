@@ -130,6 +130,7 @@ def test_get_trending_items(mock_get_sales):
 
 
 class TestPublishListToTopic():
+    '''Class for testing get_sales_data_of_tag. Contains all base case and edge cases tests'''
 
     def test_publish_list_to_topic_base(self):
         '''Tests base case where it sends emails to subscribed users'''
@@ -185,6 +186,7 @@ class TestPublishListToTopic():
 
 
 class TestGetSalesDataOfTag():
+    '''Class for testing get_sales_data_of_tag. Contains all base case and edge cases tests'''
 
     def test_get_sales_data_of_tag_success(self):
         '''Test base case for getting sales'''

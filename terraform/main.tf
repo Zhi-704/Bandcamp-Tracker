@@ -68,7 +68,7 @@ data "aws_iam_role" "ecs_task_execution_role" {
 #     skip_final_snapshot = true
 # }
 
-## Dashboard
+## Dashboard Setup/Running
 
 resource "aws_ecr_repository" "apollo_ecr_dashboard" {
     name = var.ECR_DASHBOARD
@@ -205,7 +205,7 @@ resource "aws_ecs_service" "dashboard_service" {
 }
 
 
-## Setting up permissions
+## Setting up permissions for lambda functions
 
 variable "pdf_lambda_name" {
     default =  "c11-apollo-tf-pdf"

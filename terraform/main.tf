@@ -25,10 +25,10 @@ data "aws_iam_role" "ecs_task_execution_role" {
 ## the code below and replace the variable mentioned above with the variable mentioned below.
 ## {
 ##    "name": "DB_HOST",
-##    "value": "${aws_db_instance.apollo_test_db.endpoint}"
+##    "value": "${aws_db_instance.apollo_db.endpoint}"
 ## },
 
-# resource "aws_security_group" "apollo_test_db_sg" {
+# resource "aws_security_group" "apollo_db_sg" {
 #     name = var.SG_DB_NAME
 #     description = "Security group that allows inputting data into the rds"
 #     vpc_id = data.aws_vpc.c11-VPC.id
@@ -52,7 +52,7 @@ data "aws_iam_role" "ecs_task_execution_role" {
 #     }
 # }
 
-# resource "aws_db_instance" "apollo_test_db" {
+# resource "aws_db_instance" "apollo_db" {
 #     identifier = var.DB_IDENTIFIER
 #     allocated_storage = 20
 #     engine = "postgres"
@@ -62,7 +62,7 @@ data "aws_iam_role" "ecs_task_execution_role" {
 #     username = var.DB_USERNAME
 #     password = var.DB_PASSWORD
 #     db_subnet_group_name = var.DB_SUBNET_GROUP
-#     vpc_security_group_ids = [aws_security_group.apollo_test_db_sg.id]
+#     vpc_security_group_ids = [aws_security_group.apollo_db_sg.id]
 #     publicly_accessible = true
 #     performance_insights_enabled = false
 #     skip_final_snapshot = true
@@ -70,26 +70,26 @@ data "aws_iam_role" "ecs_task_execution_role" {
 
 ## Dashboard
 
-resource "aws_ecr_repository" "apollo_test_ecr_dashboard" {
+resource "aws_ecr_repository" "apollo_ecr_dashboard" {
     name = var.ECR_DASHBOARD
     image_tag_mutability = "MUTABLE" 
 }
 
 resource "null_resource" "dockerise_dashboard" {
-  depends_on = [aws_ecr_repository.apollo_test_ecr_dashboard]
+  depends_on = [aws_ecr_repository.apollo_ecr_dashboard]
 
   provisioner "local-exec" {
     command = <<EOT
-      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_dashboard.repository_url};
-      cd ../dashboard && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_dashboard.repository_url}:latest .;
-      cd ../dashboard && docker tag apollo_test_ecr_dashboard:latest ${aws_ecr_repository.apollo_test_ecr_dashboard.repository_url}:latest;
-      cd ../dashboard && docker push ${aws_ecr_repository.apollo_test_ecr_dashboard.repository_url}:latest;
+      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_ecr_dashboard.repository_url};
+      cd ../dashboard && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_ecr_dashboard.repository_url}:latest .;
+      cd ../dashboard && docker tag apollo_ecr_dashboard:latest ${aws_ecr_repository.apollo_ecr_dashboard.repository_url}:latest;
+      cd ../dashboard && docker push ${aws_ecr_repository.apollo_ecr_dashboard.repository_url}:latest;
     EOT
   }
 }
 
-resource "aws_ecs_task_definition" "apollo_test_dashboard_task_def" {
-    family = "apollo-test-dashboard-task-definition"
+resource "aws_ecs_task_definition" "apollo_dashboard_task_def" {
+    family = "apollo-dashboard-task-definition"
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
     cpu = 1024
@@ -97,8 +97,8 @@ resource "aws_ecs_task_definition" "apollo_test_dashboard_task_def" {
     execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
     container_definitions = jsonencode(([
         {
-            name = "apollo-test-dashboard-ecr"
-            image = "${aws_ecr_repository.apollo_test_ecr_dashboard.repository_url}:latest"
+            name = "apollo-dashboard-ecr"
+            image = "${aws_ecr_repository.apollo_ecr_dashboard.repository_url}:latest"
             cpu = 1024
             memory = 3072
             essential = true
@@ -156,7 +156,7 @@ resource "aws_ecs_task_definition" "apollo_test_dashboard_task_def" {
 }
 
 
-resource "aws_security_group" "apollo_test_dashboard_sg" {
+resource "aws_security_group" "apollo_dashboard_sg" {
     name = var.SG_DASHBOARD_NAME
     description="Security group that allows connecting to the dashboard"
     vpc_id = data.aws_vpc.c11-VPC.id
@@ -187,19 +187,19 @@ resource "aws_security_group" "apollo_test_dashboard_sg" {
     }
 }
 
-resource "aws_ecs_cluster" "apollo_test_dashboard_cluster" {
-  name = "apollo_test_dashboard_cluster"
+resource "aws_ecs_cluster" "apollo_dashboard_cluster" {
+  name = "apollo_dashboard_cluster"
 }
 
 resource "aws_ecs_service" "dashboard_service" {
-    name = "apollo-test-dashboard-service"
-    cluster = aws_ecs_cluster.apollo_test_dashboard_cluster.arn
-    task_definition = aws_ecs_task_definition.apollo_test_dashboard_task_def.arn
+    name = "apollo-dashboard-service"
+    cluster = aws_ecs_cluster.apollo_dashboard_cluster.arn
+    task_definition = aws_ecs_task_definition.apollo_dashboard_task_def.arn
     desired_count = 1
     launch_type = "FARGATE"
     network_configuration {
       subnets = [var.C11_PUBLIC_SUBNET_1, var.C11_PUBLIC_SUBNET_2, var.C11_PUBLIC_SUBNET_3]
-      security_groups = [aws_security_group.apollo_test_dashboard_sg.id]
+      security_groups = [aws_security_group.apollo_dashboard_sg.id]
       assign_public_ip = true
     }
 }
@@ -208,15 +208,15 @@ resource "aws_ecs_service" "dashboard_service" {
 ## Setting up permissions
 
 variable "pdf_lambda_name" {
-    default =  "c11-apollo-tf-test-pdf"
+    default =  "c11-apollo-tf-pdf"
 }
 
 variable "notifications_lambda_name" {
-    default =  "c11-apollo-tf-test-notifications"
+    default =  "c11-apollo-tf-notifications"
 }
 
 variable "pipeline_lambda_name" {
-    default =  "c11-apollo-tf-test-pipeline"
+    default =  "c11-apollo-tf-pipeline"
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -246,46 +246,46 @@ data "aws_iam_policy_document" "lambda_logging" {
   }
 }
 
-resource "aws_iam_role" "c11-apollo-tf-test-pdf-role" {
-  name               = "c11-apollo-tf-test-pdf-role"
+resource "aws_iam_role" "c11-apollo-tf-pdf-role" {
+  name               = "c11-apollo-tf-pdf-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-resource "aws_iam_role" "c11-apollo-tf-test-notification-role" {
-  name               = "c11-apollo-tf-test-notification-role"
+resource "aws_iam_role" "c11-apollo-tf-notification-role" {
+  name               = "c11-apollo-tf-notification-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-resource "aws_iam_role" "c11-apollo-tf-test-pipeline-role" {
-  name               = "c11-apollo-tf-test-pipeline-role"
+resource "aws_iam_role" "c11-apollo-tf-pipeline-role" {
+  name               = "c11-apollo-tf-pipeline-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 
 ## PDF
 
-resource "aws_ecr_repository" "apollo_test_ecr_pdf" {
+resource "aws_ecr_repository" "apollo_ecr_pdf" {
     name = var.ECR_PDF
     image_tag_mutability = "MUTABLE" 
 }
 
 resource "null_resource" "dockerise_pdf" {
-  depends_on = [aws_ecr_repository.apollo_test_ecr_pdf]
+  depends_on = [aws_ecr_repository.apollo_ecr_pdf]
 
   provisioner "local-exec" {
     command = <<EOT
-      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_pdf.repository_url};
-      cd ../pdf_report && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_pdf.repository_url}:latest .;
-      cd ../pdf_report && docker tag apollo_test_ecr_pdf:latest ${aws_ecr_repository.apollo_test_ecr_pdf.repository_url}:latest;
-      cd ../pdf_report && docker push ${aws_ecr_repository.apollo_test_ecr_pdf.repository_url}:latest;
+      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_ecr_pdf.repository_url};
+      cd ../pdf_report && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_ecr_pdf.repository_url}:latest .;
+      cd ../pdf_report && docker tag apollo_ecr_pdf:latest ${aws_ecr_repository.apollo_ecr_pdf.repository_url}:latest;
+      cd ../pdf_report && docker push ${aws_ecr_repository.apollo_ecr_pdf.repository_url}:latest;
     EOT
   }
 }
 resource "aws_lambda_function" "c11-apollo-tf-lambda-pdf" {
     function_name = var.pdf_lambda_name
-    role = aws_iam_role.c11-apollo-tf-test-pdf-role.arn
+    role = aws_iam_role.c11-apollo-tf-pdf-role.arn
     package_type = "Image"
-    image_uri = "${aws_ecr_repository.apollo_test_ecr_pdf.repository_url}:latest"
+    image_uri = "${aws_ecr_repository.apollo_ecr_pdf.repository_url}:latest"
     architectures = ["x86_64"]
     environment {
       variables = {
@@ -309,29 +309,29 @@ resource "aws_lambda_function" "c11-apollo-tf-lambda-pdf" {
 
 ## Notifications
 
-resource "aws_ecr_repository" "apollo_test_ecr_notifications" {
+resource "aws_ecr_repository" "apollo_ecr_notifications" {
     name = var.ECR_NOTIFICATIONS
     image_tag_mutability = "MUTABLE" 
 }
 
 resource "null_resource" "dockerise_notifications" {
-  depends_on = [aws_ecr_repository.apollo_test_ecr_notifications]
+  depends_on = [aws_ecr_repository.apollo_ecr_notifications]
 
   provisioner "local-exec" {
     command = <<EOT
-      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_notifications.repository_url};
-      cd ../notifications && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest .;
-      cd ../notifications && docker tag apollo_test_ecr_notifications:latest ${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest;
-      cd ../notifications && docker push ${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest;
+      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_ecr_notifications.repository_url};
+      cd ../notifications && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_ecr_notifications.repository_url}:latest .;
+      cd ../notifications && docker tag apollo_ecr_notifications:latest ${aws_ecr_repository.apollo_ecr_notifications.repository_url}:latest;
+      cd ../notifications && docker push ${aws_ecr_repository.apollo_ecr_notifications.repository_url}:latest;
     EOT
   }
 }
 
 resource "aws_lambda_function" "c11-apollo-tf-lambda-notifications" {
     function_name = var.notifications_lambda_name
-    role = aws_iam_role.c11-apollo-tf-test-notification-role.arn
+    role = aws_iam_role.c11-apollo-tf-notification-role.arn
     package_type = "Image"
-    image_uri = "${aws_ecr_repository.apollo_test_ecr_notifications.repository_url}:latest"
+    image_uri = "${aws_ecr_repository.apollo_ecr_notifications.repository_url}:latest"
     architectures = ["x86_64"]
     environment {
       variables = {
@@ -349,20 +349,20 @@ resource "aws_lambda_function" "c11-apollo-tf-lambda-notifications" {
 
 ## Pipeline
 
-resource "aws_ecr_repository" "apollo_test_ecr_pipeline" {
+resource "aws_ecr_repository" "apollo_ecr_pipeline" {
     name = var.ECR_PIPELINE
     image_tag_mutability = "MUTABLE" 
 }
 
 resource "null_resource" "dockerise_pipeline" {
-  depends_on = [aws_ecr_repository.apollo_test_ecr_pipeline]
+  depends_on = [aws_ecr_repository.apollo_ecr_pipeline]
 
   provisioner "local-exec" {
     command = <<EOT
-      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url};
-      cd ../pipeline && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest .;
-      cd ../pipeline && docker tag apollo_test_ecr_pipeline:latest ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
-      cd ../pipeline && docker push ${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest;
+      aws ecr get-login-password --region ${var.REGION} | docker login --username AWS --password-stdin ${aws_ecr_repository.apollo_ecr_pipeline.repository_url};
+      cd ../pipeline && docker build --platform ${var.DOCKER_PLATFORM} -t ${aws_ecr_repository.apollo_ecr_pipeline.repository_url}:latest .;
+      cd ../pipeline && docker tag apollo_ecr_pipeline:latest ${aws_ecr_repository.apollo_ecr_pipeline.repository_url}:latest;
+      cd ../pipeline && docker push ${aws_ecr_repository.apollo_ecr_pipeline.repository_url}:latest;
     EOT
   }
 }
@@ -370,9 +370,9 @@ resource "null_resource" "dockerise_pipeline" {
 
 resource "aws_lambda_function" "c11-apollo-tf-lambda-pipeline" {
     function_name = var.pipeline_lambda_name
-    role = aws_iam_role.c11-apollo-tf-test-pipeline-role.arn
+    role = aws_iam_role.c11-apollo-tf-pipeline-role.arn
     package_type = "Image"
-    image_uri = "${aws_ecr_repository.apollo_test_ecr_pipeline.repository_url}:latest"
+    image_uri = "${aws_ecr_repository.apollo_ecr_pipeline.repository_url}:latest"
     architectures = ["x86_64"]
     environment {
       variables = {
@@ -401,23 +401,23 @@ data "aws_iam_policy_document" "scheduler_assume_role" {
 }
 
 # Creates a generic role for event scheduler
-resource "aws_iam_role" "c11-apollo-test-tf-schedule-pipeline-role" {
-  name               = "c11-apollo-test-tf-schedule-pipeline-role"
+resource "aws_iam_role" "c11-apollo-tf-schedule-pipeline-role" {
+  name               = "c11-apollo-tf-schedule-pipeline-role"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
 }
-resource "aws_iam_role" "c11-apollo-test-tf-schedule-pdf-role" {
-  name               = "c11-apollo-test-tf-schedule-pdf-role"
+resource "aws_iam_role" "c11-apollo-tf-schedule-pdf-role" {
+  name               = "c11-apollo-tf-schedule-pdf-role"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
 }
-resource "aws_iam_role" "c11-apollo-test-tf-schedule-notification-role" {
-  name               = "c11-apollo-test-tf-schedule-notification-role"
+resource "aws_iam_role" "c11-apollo-tf-schedule-notification-role" {
+  name               = "c11-apollo-tf-schedule-notification-role"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
 }
 
 # Attaches custom policy to role for running the lambdas
 resource "aws_iam_role_policy" "pipeline_execution_policy" {
   name = "c11-apollo-pipeline-scheduler-policy"
-  role = aws_iam_role.c11-apollo-test-tf-schedule-pipeline-role.id
+  role = aws_iam_role.c11-apollo-tf-schedule-pipeline-role.id
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -435,7 +435,7 @@ resource "aws_iam_role_policy" "pipeline_execution_policy" {
 
 resource "aws_iam_role_policy" "notification_execution_policy" {
   name = "c11-apollo-notification-scheduler-policy"
-  role = aws_iam_role.c11-apollo-test-tf-schedule-notification-role.id
+  role = aws_iam_role.c11-apollo-tf-schedule-notification-role.id
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -452,7 +452,7 @@ resource "aws_iam_role_policy" "notification_execution_policy" {
 }
 resource "aws_iam_role_policy" "pdf_execution_policy" {
   name = "c11-apollo-pdf-scheduler-policy"
-  role = aws_iam_role.c11-apollo-test-tf-schedule-pdf-role.id
+  role = aws_iam_role.c11-apollo-tf-schedule-pdf-role.id
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -476,7 +476,7 @@ resource "aws_scheduler_schedule" "lambda-schedule-pipeline" {
     schedule_expression = "cron(*/2 * * * ? *)"
     target {
         arn=aws_lambda_function.c11-apollo-tf-lambda-pipeline.arn
-        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-pipeline-role.arn
+        role_arn = aws_iam_role.c11-apollo-tf-schedule-pipeline-role.arn
     }
 }
 
@@ -488,7 +488,7 @@ resource "aws_scheduler_schedule" "lambda-schedule-pdf" {
     schedule_expression = "cron(0 9 * * ? *)"
     target {
         arn=aws_lambda_function.c11-apollo-tf-lambda-pdf.arn
-        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-pdf-role.arn
+        role_arn = aws_iam_role.c11-apollo-tf-schedule-pdf-role.arn
     }
 }
 
@@ -500,6 +500,6 @@ resource "aws_scheduler_schedule" "lambda-schedule-notification" {
     schedule_expression = "cron(0 */4 * * ? *)"
     target {
         arn=aws_lambda_function.c11-apollo-tf-lambda-notifications.arn
-        role_arn = aws_iam_role.c11-apollo-test-tf-schedule-notification-role.arn
+        role_arn = aws_iam_role.c11-apollo-tf-schedule-notification-role.arn
     }
 }

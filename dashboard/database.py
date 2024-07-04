@@ -10,9 +10,9 @@ import pandas as pd
 
 @st.cache_resource
 def get_connection() -> Connection:
-    """gets a connection"""
+    """Creates and returns a connection to the database."""
 
-    print("getting a connection")
+    print("Connecting to database...")
     return connect(
         port=ENV["DB_PORT"],
         dbname=ENV["DB_NAME"],
@@ -41,7 +41,6 @@ def get_popular_tracks(_conn: Connection, timeframe: str) -> pd.DataFrame:
     """Returns the 5 most sold tracks in the database."""
 
     print("Collating most popular tracks...")
-    _conn = check_connection(_conn)
     query = f"""
         SELECT T.title, A.name, COUNT(track_purchase_id) AS copies_sold, T.url as url
         FROM track_purchase AS TP
@@ -66,7 +65,6 @@ def get_popular_albums(_conn: Connection, timeframe: str) -> pd.DataFrame:
     """Returns the 5 most sold albums in the database."""
 
     print("Collating most popular albums...")
-    _conn = check_connection(_conn)
     query = f"""
         SELECT AB.title, AT.name, COUNT(*) AS copies_sold, AB.url as url
         FROM album_purchase AS AP
@@ -93,7 +91,6 @@ def get_popular_artists(_conn: Connection, timeframe) -> pd.DataFrame:
     """Returns the 5 artists with the most sales in the database."""
 
     print("Collating most popular artists...")
-    _conn = check_connection(_conn)
     query = f"""
             SELECT A.artist_id, A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales, COUNT(DISTINCT AP.album_purchase_id) + COUNT(DISTINCT TP.track_purchase_id) AS total_sales, A.url as artist_url
             FROM
@@ -127,7 +124,6 @@ def get_popular_artists(_conn: Connection, timeframe) -> pd.DataFrame:
 def get_all_artists(_conn: Connection):
     """Returns all artists."""
 
-    _conn = check_connection(_conn)
     print("Collecting artists...")
 
     query = """
@@ -147,7 +143,6 @@ def get_sales_by_tag(_conn: Connection, timeframe: str) -> pd.DataFrame:
     """Returns the top 5 genre/tag by sales."""
 
     print("Counting sales by tag...")
-    _conn = check_connection(_conn)
     query = f"""
         SELECT t.name, SUM(album_table.album_total + track_table.track_total) AS total_sales
     FROM tag t
@@ -184,7 +179,6 @@ def get_sales_by_tag(_conn: Connection, timeframe: str) -> pd.DataFrame:
 def get_all_tags(_conn: Connection) -> list:
     """Returns all tags."""
 
-    _conn = check_connection(_conn)
     print("Collecting tags...")
 
     query = """
@@ -204,7 +198,6 @@ def get_sales_by_country(_conn: Connection) -> list[dict]:
     """Returns the sales for each country."""
 
     print("Counting sales by country...")
-    _conn = check_connection(_conn)
     query = """
         SELECT C.name as name, CAST(SUM(album_table.album_total + track_table.track_total) AS FLOAT) AS total_sales
         FROM country C
@@ -235,7 +228,6 @@ def get_all_album_titles(_conn: Connection):
     """Returns all album titles."""
 
     print("Getting album titles...")
-    _conn = check_connection(_conn)
     query = """
             SELECT title
             FROM album
@@ -254,7 +246,6 @@ def get_track_sales_by_artist(_conn: Connection, artist: str):
     """Returns all track info for a given artist."""
 
     print(f"Counting track sales for artist {artist}...")
-    _conn = check_connection(_conn)
     query = """
             SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
             FROM artist AS A
@@ -279,7 +270,6 @@ def get_album_sales_by_artist(_conn: Connection, artist: str):
     """Returns all album info for a given artist."""
 
     print(f"Counting album sales for artist {artist}...")
-    _conn = check_connection(_conn)
     query = """
             SELECT DATE_TRUNC('hour', AP.timestamp) AS hour, COUNT(DISTINCT AP.album_purchase_id) as sales
             FROM artist AS A
@@ -303,7 +293,6 @@ def get_album_sales_by_artist(_conn: Connection, artist: str):
 def get_sales(_conn: Connection) -> pd.DataFrame:
     """Returns all sales data."""
 
-    _conn = check_connection(_conn)
     query = """
         SELECT A.name, COUNT(DISTINCT AP.album_purchase_id) AS album_sales, COUNT(DISTINCT TP.track_purchase_id) AS track_sales
         FROM artist as A
@@ -327,7 +316,6 @@ def get_all_tag_names(_conn: Connection) -> list[str]:
     """Returns all tag names."""
 
     print("Getting tag names...")
-    _conn = check_connection(_conn)
     query = """
         SELECT T.name
         FROM tag as T
@@ -352,7 +340,6 @@ def get_track_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")
-    _conn = check_connection(_conn)
     query = """
         SELECT DATE_TRUNC('hour', TP.timestamp) AS hour, COUNT(DISTINCT TP.track_purchase_id) as sales
         FROM tag AS T
@@ -377,7 +364,6 @@ def get_album_sales_by_tag(_conn: Connection, tag_name: str) -> pd.DataFrame:
     """Returns all sales for a given tag."""
 
     print(f"Counting tag sales for tag {tag_name}...")
-    _conn = check_connection(_conn)
     query = """
         SELECT DATE_TRUNC('hour', AP.timestamp) AS hour, COUNT(DISTINCT AP.album_purchase_id) as sales
         FROM tag AS T

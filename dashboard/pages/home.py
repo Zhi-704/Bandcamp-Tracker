@@ -10,6 +10,7 @@ def show_home():
     """Main function for Home page."""
 
     conn = database.get_connection()
+    conn = database.check_connection(conn)
 
     st.title("Home")
     col = st.columns(2)

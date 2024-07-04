@@ -3,7 +3,7 @@
 from os import environ as ENV
 import streamlit as st
 import boto3
-from database import get_all_tags, get_connection
+from database import get_all_tags, get_connection, check_connection
 
 ARN_PREFIX = "arn:aws:sns:eu-west-2:129033205317:c11-bandcamp"
 
@@ -35,6 +35,8 @@ def show_subscriptions():
     st.title("Subscriptions")
 
     conn = get_connection()
+    conn = check_connection(conn)
+
 
     st.write("We offer two different email subscriptions:")
     st.write(
